@@ -4,6 +4,7 @@
 
 import React, { useState } from "react";
 import { TaskForm } from "@/components/task-form";
+import { TaskTable } from "@/components/task-table";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -18,7 +19,6 @@ import {
 import { Bar } from "react-chartjs-2";
 import { runMonteCarlo, Task } from "./lib/monte-carlo";
 
-// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -32,23 +32,67 @@ export default function HomePage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [simulationData, setSimulationData] = useState<number[]>([]);
 
-  // Add new tasks coming from TaskForm
-  const handleAddTask = (task: Task) => {
-    setTasks((prev) => [...prev, task]);
+  // Track if we are editing an existing task
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+
+  // Helper to determine if in "create" or "edit" mode
+  const isEditing = editIndex !== null;
+
+  // The task currently being edited, if any
+  const taskBeingEdited = isEditing ? tasks[editIndex!] : undefined;
+
+  // -------------------
+  //  Add or Edit Task
+  // -------------------
+  const handleSubmitTask = (task: Task, index?: number) => {
+    // If editing, replace existing task
+    if (typeof index === "number") {
+      setTasks((prev) => {
+        const newTasks = [...prev];
+        newTasks[index] = task;
+        return newTasks;
+      });
+      setEditIndex(null); // reset
+    }
+    // Otherwise, add new
+    else {
+      setTasks((prev) => [...prev, task]);
+    }
   };
 
-  // Run Monte Carlo and store the distribution
+  // User clicks "Remove"
+  const handleRemoveTask = (index: number) => {
+    setTasks((prev) => prev.filter((_, i) => i !== index));
+    if (editIndex === index) {
+      // if we removed the one we're editing, reset
+      setEditIndex(null);
+    }
+  };
+
+  // User clicks "Edit"
+  const handleEditTask = (task: Task, index: number) => {
+    setEditIndex(index);
+  };
+
+  // User cancels editing
+  const handleCancelEdit = () => {
+    setEditIndex(null);
+  };
+
+  // -------------------
+  //  Run Monte Carlo
+  // -------------------
   const handleSimulate = () => {
     if (tasks.length === 0) return;
-    const results = runMonteCarlo(tasks, 10000);
+    const results = runMonteCarlo(tasks, 5000);
     setSimulationData(results);
   };
 
-  // Once we have simulationData (the total times per iteration),
-  // we can bin them into histogram buckets:
+  // -------------------
+  //   Histogram
+  // -------------------
   const createHistogram = (data: number[], numberOfBins: number) => {
     if (!data.length) return { labels: [], counts: [] };
-
     const minValue = Math.min(...data);
     const maxValue = Math.max(...data);
     const binSize = (maxValue - minValue) / numberOfBins;
@@ -71,8 +115,7 @@ export default function HomePage() {
     return { labels, counts };
   };
 
-  const { labels, counts } = createHistogram(simulationData, 20); // 20 bins example
-
+  const { labels, counts } = createHistogram(simulationData, 20);
   const chartData = {
     labels,
     datasets: [
@@ -88,28 +131,30 @@ export default function HomePage() {
     <div className="p-8 space-y-6">
       <h1 className="text-2xl font-bold">Monte Carlo Task Estimation</h1>
 
-      {/* Add Task Form */}
-      <TaskForm onAddTask={handleAddTask} />
+      {/* The TaskForm for adding or editing */}
+      <TaskForm
+        mode={isEditing ? "edit" : "create"}
+        initialTask={taskBeingEdited}
+        taskIndex={isEditing ? editIndex! : undefined}
+        onSubmit={handleSubmitTask}
+        onCancel={handleCancelEdit}
+      />
 
-      {/* Display the list of tasks */}
-      <div>
-        <h2 className="text-xl font-semibold mt-4">Current Tasks</h2>
-        <ul className="list-disc list-inside">
-          {tasks.map((task, index) => (
-            <li key={index}>
-              <strong>{task.name}</strong>: {task.min} - {task.max} (
-              {task.distribution})
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* Our new table of tasks with edit/remove actions */}
+      {tasks.length > 0 && (
+        <TaskTable
+          tasks={tasks}
+          onEdit={handleEditTask}
+          onRemove={handleRemoveTask}
+        />
+      )}
 
-      {/* Run Simulation */}
+      {/* Run simulation */}
       <Button onClick={handleSimulate} disabled={tasks.length === 0}>
         Run Monte Carlo Simulation
       </Button>
 
-      {/* Render Chart only if we have results */}
+      {/* Chart */}
       {simulationData.length > 0 && (
         <div className="max-w-xl mt-8">
           <h2 className="text-xl font-semibold">Simulation Results</h2>
@@ -127,7 +172,7 @@ export default function HomePage() {
                 },
               },
               scales: {
-                x: { title: { display: true, text: "Total Time (units)" } },
+                x: { title: { display: true, text: "Total Time" } },
                 y: { title: { display: true, text: "Frequency" } },
               },
             }}

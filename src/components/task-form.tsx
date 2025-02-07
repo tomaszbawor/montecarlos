@@ -2,8 +2,8 @@
 
 "use client";
 
-import React from "react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Task } from "@/lib/monte-carlo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,33 +14,55 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Task } from "@/app/lib/monte-carlo";
 
 interface TaskFormProps {
-  onAddTask: (task: Task) => void;
+  mode: "create" | "edit";
+  initialTask?: Task;
+  taskIndex?: number;
+  onSubmit: (task: Task, index?: number) => void;
+  onCancel?: () => void;
 }
 
-export function TaskForm({ onAddTask }: TaskFormProps) {
+export function TaskForm({
+  mode,
+  initialTask,
+  taskIndex,
+  onSubmit,
+  onCancel,
+}: TaskFormProps) {
+  // Local form state
   const [name, setName] = useState("");
   const [min, setMin] = useState("1");
   const [max, setMax] = useState("3");
   const [distribution, setDistribution] = useState("uniform");
 
+  // Pre-fill if editing
+  useEffect(() => {
+    if (initialTask) {
+      setName(initialTask.name);
+      setMin(initialTask.min.toString());
+      setMax(initialTask.max.toString());
+      setDistribution(initialTask.distribution);
+    }
+  }, [initialTask]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name) return;
+
     const newTask: Task = {
       name,
-      distribution,
       min: parseFloat(min),
       max: parseFloat(max),
+      distribution,
     };
-    onAddTask(newTask);
-    // Reset form
-    setName("");
-    setMin("1");
-    setMax("3");
-    setDistribution("uniform");
+    onSubmit(newTask, taskIndex);
+    // Optionally reset if in create mode
+    if (mode === "create") {
+      setName("");
+      setMin("1");
+      setMax("3");
+      setDistribution("uniform");
+    }
   };
 
   return (
@@ -88,7 +110,17 @@ export function TaskForm({ onAddTask }: TaskFormProps) {
           </SelectContent>
         </Select>
       </div>
-      <Button type="submit">Add Task</Button>
+
+      <div className="flex gap-2">
+        <Button type="submit">
+          {mode === "create" ? "Add Task" : "Save Changes"}
+        </Button>
+        {mode === "edit" && onCancel && (
+          <Button variant="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+        )}
+      </div>
     </form>
   );
 }
