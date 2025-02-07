@@ -1,4 +1,4 @@
-// lib/react-query-provider.tsx
+// lib/react-query-provider.tsx// lib/react-query-provider.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -11,14 +11,14 @@ export function ReactQueryProvider({
 }: {
   children: React.ReactNode;
 }) {
+  // We create the QueryClient only once (useState callback) to avoid re-instantiation
   const [queryClient] = useState(() => {
     const client = new QueryClient({
       defaultOptions: {
         queries: {
-          // Keep data indefinitely so it doesn't get garbage-collected.
-          // Otherwise you can customize this as desired.
+          // Keep data indefinitely unless you want it refetched
           staleTime: Infinity,
-          cacheTime: Infinity,
+          //cacheTime: Infinity,
         },
       },
     });
@@ -31,6 +31,7 @@ export function ReactQueryProvider({
       persistQueryClient({
         queryClient: client,
         persister: localStoragePersister,
+        // You can configure options like dehydratedState etc. if needed
       });
     }
 

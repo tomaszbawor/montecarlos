@@ -1,9 +1,5 @@
 // hooks/useTasks.ts
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { todo } from "node:test";
-
-// We'll store tasks under this cache key
-const TASKS_KEY = ["tasks"];
 
 export interface Task {
   name: string;
@@ -12,23 +8,27 @@ export interface Task {
   max: number;
 }
 
+const TASKS_KEY = ["tasks"];
+
+// Read tasks from the query cache
 export function useTasks() {
-  // This fetcher is local-only. We aren't calling an API,
-  // so we just return an empty array as the "base" data.
-  // The persisted cache will replace it after hydration.
   const { data = [] } = useQuery<Task[]>({
     queryKey: TASKS_KEY,
-    queryFn: () => {
-      useQueryClient().getQueryData(TASKS_KEY);
+    queryFn: async () => {
+      // For local/pure client usage, there's no "real" fetch.
+      // Return an empty array if there's nothing in local storage
+      // This data will be replaced by the persisted cache once rehydrated.
+      return [];
     },
+    initialData: [],
   });
+
   return data;
 }
 
+// Update tasks in the query cache
 export function useSetTasks() {
   const queryClient = useQueryClient();
-
-  // We expose a function to update tasks in the React Query cache
   return (newTasks: Task[]) => {
     queryClient.setQueryData(TASKS_KEY, newTasks);
   };

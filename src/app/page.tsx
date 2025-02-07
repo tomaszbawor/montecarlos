@@ -1,9 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+
+// --- React Query Tasks Hooks ---
+import { useTasks, useSetTasks, Task } from "@/app/hooks/useTasks";
+
+// --- UI Components for tasks ---
 import { TaskForm } from "@/components/task-form";
 import { TaskTable } from "@/components/task-table";
+
+// --- Monte Carlo logic ---
+import { runMonteCarlo } from "@/app/lib/monte-carlo";
+
+// --- shadcn/ui components ---
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+
+// --- Chart.js + annotation plugin ---
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,9 +28,8 @@ import {
 } from "chart.js";
 import annotationPlugin from "chartjs-plugin-annotation";
 import { Bar } from "react-chartjs-2";
-import { runMonteCarlo } from "./lib/monte-carlo";
-import { useSetTasks, useTasks } from "./hooks/useTasks";
 
+// Register Chart.js components and plugins
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -29,34 +41,37 @@ ChartJS.register(
 );
 
 export default function HomePage() {
-  // -------------------
-  //  React Query for tasks
-  // -------------------
-  const tasks = useTasks(); // persisted tasks from the cache
-  const setTasks = useSetTasks(); // function to update tasks in the cache
+  // -------------------------------------------------------------------
+  //  React Query: get and set tasks (persisted in localStorage)
+  // -------------------------------------------------------------------
+  const tasks = useTasks(); // read tasks from the React Query cache
+  const setTasks = useSetTasks(); // update tasks in the React Query cache
 
-  // For editing
+  // -------------------------------------------------------------------
+  //  Local state for editing tasks
+  // -------------------------------------------------------------------
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const isEditing = editIndex !== null;
   const taskBeingEdited = isEditing ? tasks[editIndex!] : undefined;
 
-  // For simulation
+  // -------------------------------------------------------------------
+  //  Local state for simulation results + confidence slider
+  // -------------------------------------------------------------------
   const [simulationData, setSimulationData] = useState<number[]>([]);
-  // For confidence
   const [confidence, setConfidence] = useState<number>(95);
 
-  // -------------------
-  //  Add or Edit Task
-  // -------------------
+  // -------------------------------------------------------------------
+  //  Handlers for adding / editing / removing tasks
+  // -------------------------------------------------------------------
   function handleSubmitTask(newTask: Task, index?: number) {
     if (typeof index === "number") {
-      // Edit existing
+      // Editing an existing task
       const updated = [...tasks];
       updated[index] = newTask;
       setTasks(updated);
       setEditIndex(null);
     } else {
-      // Create new
+      // Adding a new task
       setTasks([...tasks, newTask]);
     }
   }
@@ -77,27 +92,139 @@ export default function HomePage() {
     setEditIndex(null);
   }
 
-  // -------------------
-  //  Run Monte Carlo
-  // -------------------
-  const handleSimulate = () => {
+  // -------------------------------------------------------------------
+  //  Monte Carlo Simulation
+  // -------------------------------------------------------------------
+  function handleSimulate() {
     if (tasks.length === 0) return;
-    const results = runMonteCarlo(tasks, 5000);
+    const results = runMonteCarlo(tasks, 20000); // 5,000 iterations
     setSimulationData(results);
+  }
+
+  // -------------------------------------------------------------------
+  //  Creating a histogram from simulation data
+  // -------------------------------------------------------------------
+  function createHistogram(data: number[], numberOfBins: number) {
+    if (!data.length) {
+      return {
+        labels: [] as string[],
+        counts: [] as number[],
+        minValue: 0,
+        maxValue: 0,
+      };
+    }
+
+    const minValue = Math.min(...data);
+    const maxValue = Math.max(...data);
+    const binSize = (maxValue - minValue) / numberOfBins;
+    const counts = new Array(numberOfBins).fill(0);
+
+    data.forEach((value) => {
+      const binIndex = Math.min(
+        Math.floor((value - minValue) / binSize),
+        numberOfBins - 1,
+      );
+      counts[binIndex] += 1;
+    });
+
+    const labels = counts.map((_, i) => {
+      const start = minValue + i * binSize;
+      const end = start + binSize;
+      return `${start.toFixed(1)} - ${end.toFixed(1)}`;
+    });
+
+    return { labels, counts, minValue, maxValue };
+  }
+
+  // -------------------------------------------------------------------
+  //  Compute percentile + draw a red line
+  // -------------------------------------------------------------------
+  // 1) The percentile value: time by which X% of simulations have finished
+  const percentileValue = useMemo(() => {
+    if (!simulationData.length) return 0;
+    const sorted = [...simulationData].sort((a, b) => a - b);
+    // index for the desired percentile
+    const idx = Math.floor((confidence / 100) * sorted.length);
+    return sorted[idx] || 0;
+  }, [simulationData, confidence]);
+
+  // 2) Create the histogram data from simulation
+  const numberOfBins = 20;
+  const { labels, counts, minValue, maxValue } = useMemo(
+    () => createHistogram(simulationData, numberOfBins),
+    [simulationData],
+  );
+
+  // 3) Determine which bin the percentile value falls into
+  const percentileBinIndex = useMemo(() => {
+    if (!simulationData.length) return null;
+    const binSize = (maxValue - minValue) / numberOfBins;
+    const idx = Math.floor((percentileValue - minValue) / binSize);
+    return Math.min(Math.max(idx, 0), numberOfBins - 1);
+  }, [percentileValue, minValue, maxValue, numberOfBins, simulationData]);
+
+  // -------------------------------------------------------------------
+  //  Chart.js data + annotation plugin config
+  // -------------------------------------------------------------------
+  const chartData = {
+    labels,
+    datasets: [
+      {
+        label: "Frequency",
+        data: counts,
+        backgroundColor: "rgba(53, 162, 235, 0.5)",
+      },
+    ],
   };
 
-  // histogram + percentile logic same as before ...
-  // ...
-  // (omitted here for brevity, but you'd keep your existing code)
+  const chartOptions: any = {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      title: {
+        display: true,
+        text: "Histogram of Total Task Times",
+      },
+      annotation: {
+        annotations:
+          percentileBinIndex !== null && simulationData.length > 0
+            ? {
+                percentileLine: {
+                  type: "line",
+                  xMin: percentileBinIndex + 0.5, // shift line to boundary between bins
+                  xMax: percentileBinIndex + 0.5,
+                  borderColor: "red",
+                  borderWidth: 2,
+                  label: {
+                    enabled: true,
+                    position: "start",
+                    content: `${confidence}% ≈ ${percentileValue.toFixed(1)}`,
+                    color: "red",
+                    backgroundColor: "white",
+                  },
+                },
+              }
+            : {},
+      },
+    },
+    scales: {
+      x: {
+        title: { display: true, text: "Total Time" },
+      },
+      y: {
+        title: { display: true, text: "Frequency" },
+      },
+    },
+  };
 
-  // ...
-  // let's assume we have chartData & chartOptions computed
-
+  // -------------------------------------------------------------------
+  //  Render the entire UI
+  // -------------------------------------------------------------------
   return (
     <div className="p-8 space-y-6">
       <h1 className="text-2xl font-bold">Monte Carlo Task Estimation</h1>
 
-      {/* The TaskForm for adding or editing */}
+      {/* Task Form for adding / editing */}
       <TaskForm
         mode={isEditing ? "edit" : "create"}
         initialTask={taskBeingEdited}
@@ -106,7 +233,7 @@ export default function HomePage() {
         onCancel={handleCancelEdit}
       />
 
-      {/* Table of tasks */}
+      {/* Table of tasks (with edit/remove actions) */}
       {tasks.length > 0 && (
         <TaskTable
           tasks={tasks}
@@ -115,13 +242,36 @@ export default function HomePage() {
         />
       )}
 
-      {/* Simulation button */}
+      {/* Button to run Monte Carlo */}
       <Button onClick={handleSimulate} disabled={tasks.length === 0}>
         Run Monte Carlo Simulation
       </Button>
 
-      {/* Confidence slider / chart ... etc */}
-      {/* (same code as before to show histogram & vertical line) */}
+      {/* If we have simulationData, show the slider and chart */}
+      {simulationData.length > 0 && (
+        <div className="mt-8 space-y-6">
+          {/* Confidence slider */}
+          <div className="max-w-lg space-y-2">
+            <p className="font-semibold">Confidence: {confidence}%</p>
+            <Slider
+              defaultValue={[confidence]}
+              min={0}
+              max={100}
+              step={1}
+              onValueChange={(val) => setConfidence(val[0])}
+            />
+            <p className="text-sm text-gray-500">
+              By <strong>{confidence}%</strong> certainty, tasks finish in about{" "}
+              <strong>{percentileValue.toFixed(2)}</strong> time units.
+            </p>
+          </div>
+
+          {/* Histogram chart */}
+          <div className="max-w-3xl">
+            <Bar data={chartData} options={chartOptions} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
