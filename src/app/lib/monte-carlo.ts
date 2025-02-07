@@ -50,7 +50,7 @@ function randomValue(task: Task): number {
  */
 export function runMonteCarlo(
   tasks: Task[],
-  iterations: number = 10000,
+  iterations: number = 50000,
 ): number[] {
   const totals: number[] = [];
 
