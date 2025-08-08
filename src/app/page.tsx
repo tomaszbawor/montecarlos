@@ -3,12 +3,12 @@
 import React, { useState } from "react";
 
 // --- React Query Tasks Hooks ---
-import { useTasks, useSetTasks, Task } from "@/app/hooks/useTasks";
+import { Task, useSetTasks, useTasks } from "@/app/hooks/useTasks";
 
 // --- UI Components for tasks ---
 import { TaskForm } from "@/components/task-form";
 import { TaskTable } from "@/components/task-table";
-import {UploadDataItem, UploadForm} from '@/components/upload-form'
+import { UploadDataItem, UploadForm } from '@/components/upload-form'
 
 // --- Monte Carlo logic ---
 import { runMonteCarlo } from "@/app/lib/monte-carlo";
@@ -17,15 +17,7 @@ import { runMonteCarlo } from "@/app/lib/monte-carlo";
 import { Button } from "@/components/ui/button";
 
 // --- Chart.js + annotation plugin ---
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip, } from "chart.js";
 import annotationPlugin from "chartjs-plugin-annotation";
 import { SimulationResult } from "@/components/simulation-result";
 
@@ -104,10 +96,10 @@ export default function HomePage() {
 
   const handleUploadData = (data: UploadDataItem[]) => {
     setTasks(data.map(item => {
-        return {
-            ...item,
-            distribution: "uniform"
-        }
+      return {
+        ...item,
+        distribution: "uniform"
+      }
     }));
   };
 
@@ -118,37 +110,37 @@ export default function HomePage() {
     <div className="p-8 space-y-6">
       <h1 className="text-2xl font-bold text-center">Monte Carlo Task Estimation</h1>
       <div className="grid grid-cols-2 gap-4 w-72 place-self-center">
-        <UploadForm onData={handleUploadData} />
+        <UploadForm onData={handleUploadData}/>
         <Button disabled={tasks.length === 0} onClick={() => setTasks([])}>Clear All Tasks</Button>
       </div>
 
       {tasks.length > 0 && <div className="flex flex-row justify-center">
-        <Button onClick={handleSimulate}>
-           Run Monte Carlo Simulation
-        </Button>
+          <Button onClick={handleSimulate}>
+              Run Monte Carlo Simulation
+          </Button>
       </div>}
 
       {isEditing && <TaskForm
-        mode={isEditing ? "edit" : "create"}
-        initialTask={taskBeingEdited}
-        taskIndex={isEditing ? editIndex! : undefined}
-        onSubmit={handleSubmitTask}
-        onCancel={handleCancelEdit}
+          mode={isEditing ? "edit" : "create"}
+          initialTask={taskBeingEdited}
+          taskIndex={isEditing ? editIndex! : undefined}
+          onSubmit={handleSubmitTask}
+          onCancel={handleCancelEdit}
       />}
 
       {tasks.length > 0 && (
-          <>
-            <h3 className="text-xl font-bold text-center">List of tasks</h3>
-            <TaskTable
-              tasks={tasks}
-              onEdit={handleEditTask}
-              onRemove={handleRemoveTask}
-            />
-          </>
+        <>
+          <h3 className="text-xl font-bold text-center">List of tasks</h3>
+          <TaskTable
+            tasks={tasks}
+            onEdit={handleEditTask}
+            onRemove={handleRemoveTask}
+          />
+        </>
       )}
 
       {simulationData.length > 0 && (
-        <SimulationResult simulationData={simulationData} />
+        <SimulationResult simulationData={simulationData}/>
       )}
     </div>
   );
