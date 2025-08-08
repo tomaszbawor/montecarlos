@@ -3,7 +3,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Task } from "@/lib/monte-carlo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {Task} from "@/app/hooks/useTasks";
 
 interface TaskFormProps {
   mode: "create" | "edit";
