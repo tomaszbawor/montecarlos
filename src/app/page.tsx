@@ -15,6 +15,7 @@ import { runMonteCarlo } from "@/app/lib/monte-carlo";
 
 // --- shadcn/ui components ---
 import { Button } from "@/components/ui/button";
+import Modal from 'react-modal';
 
 // --- Chart.js + annotation plugin ---
 import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip, } from "chart.js";
@@ -34,6 +35,20 @@ ChartJS.register(
 
 const ITERATION_AMOUNT = 20000;
 
+Modal.setAppElement('body');
+
+const modalStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    width: '490px',
+    marginRight: '-30%',
+    transform: 'translate(-50%, -50%)',
+  },
+};
+
 export default function HomePage() {
   // -------------------------------------------------------------------
   //  React Query: get and set tasks (persisted in localStorage)
@@ -44,9 +59,8 @@ export default function HomePage() {
   // -------------------------------------------------------------------
   //  Local state for editing tasks
   // -------------------------------------------------------------------
-  const [editIndex, setEditIndex] = useState<number | null>(null);
-  const isEditing = editIndex !== null;
-  const taskBeingEdited = isEditing ? tasks[editIndex!] : undefined;
+  const [taskEdited, setTaskEdited] = useState<Task | null>(null);
+  const [modalIsOpen, setIsOpen] = React.useState(false);
 
   // -------------------------------------------------------------------
   //  Local state for simulation results + confidence slider
@@ -62,7 +76,7 @@ export default function HomePage() {
       const updated = [...tasks];
       updated[index] = newTask;
       setTasks(updated);
-      setEditIndex(null);
+      closeModal();
     } else {
       // Adding a new task
       setTasks([...tasks, newTask]);
@@ -72,17 +86,14 @@ export default function HomePage() {
   function handleRemoveTask(index: number) {
     const updated = tasks.filter((_, i) => i !== index);
     setTasks(updated);
-    if (editIndex === index) {
-      setEditIndex(null);
-    }
   }
 
-  function handleEditTask(task: Task, index: number) {
-    setEditIndex(index);
+  function handleEditTask(task: Task) {
+    openModal(task);
   }
 
   function handleCancelEdit() {
-    setEditIndex(null);
+    closeModal();
   }
 
   // -------------------------------------------------------------------
@@ -103,15 +114,30 @@ export default function HomePage() {
     }));
   };
 
+  const clearAllTasks = () => {
+    setTasks([])
+    setSimulationData([])
+  }
+
+  function openModal(task?: Task) {
+    if (task) setTaskEdited(task);
+    setIsOpen(true);
+  }
+
+  function closeModal() {
+    setIsOpen(false);
+    setTaskEdited(null);
+  }
+
   // -------------------------------------------------------------------
   //  Render the entire UI
   // -------------------------------------------------------------------
   return (
     <div className="p-8 space-y-6">
       <h1 className="text-2xl font-bold text-center">Monte Carlo Task Estimation</h1>
-      <div className="grid grid-cols-2 gap-4 w-72 place-self-center">
+      <div className="flex flex-row gap-4 justify-center">
         <UploadForm onData={handleUploadData}/>
-        <Button disabled={tasks.length === 0} onClick={() => setTasks([])}>Clear All Tasks</Button>
+        <Button disabled={tasks.length === 0} onClick={clearAllTasks}>Clear All Tasks</Button>
       </div>
 
       {tasks.length > 0 && <div className="flex flex-row justify-center">
@@ -120,13 +146,26 @@ export default function HomePage() {
           </Button>
       </div>}
 
-      {isEditing && <TaskForm
-          mode={isEditing ? "edit" : "create"}
-          initialTask={taskBeingEdited}
-          taskIndex={isEditing ? editIndex! : undefined}
-          onSubmit={handleSubmitTask}
-          onCancel={handleCancelEdit}
-      />}
+      <div className="flex flex-row gap-4 justify-around">
+        <Modal
+          isOpen={modalIsOpen}
+          style={modalStyles}
+          onRequestClose={closeModal}
+          contentLabel="Add/Edit Task"
+        >
+          <TaskForm
+              mode={taskEdited ? "edit" : "create"}
+              initialTask={taskEdited || undefined}
+              taskIndex={taskEdited ? tasks.indexOf(taskEdited) : undefined}
+              onSubmit={handleSubmitTask}
+              onCancel={handleCancelEdit}
+          />
+        </Modal>
+      </div>
+
+      {simulationData.length > 0 && (
+        <SimulationResult simulationData={simulationData}/>
+      )}
 
       {tasks.length > 0 && (
         <>
@@ -139,9 +178,6 @@ export default function HomePage() {
         </>
       )}
 
-      {simulationData.length > 0 && (
-        <SimulationResult simulationData={simulationData}/>
-      )}
     </div>
   );
 }
