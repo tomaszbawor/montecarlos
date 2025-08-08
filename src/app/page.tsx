@@ -8,6 +8,7 @@ import { useTasks, useSetTasks, Task } from "@/app/hooks/useTasks";
 // --- UI Components for tasks ---
 import { TaskForm } from "@/components/task-form";
 import { TaskTable } from "@/components/task-table";
+import {UploadDataItem, UploadForm} from '@/components/upload-form'
 
 // --- Monte Carlo logic ---
 import { runMonteCarlo } from "@/app/lib/monte-carlo";
@@ -217,13 +218,22 @@ export default function HomePage() {
     },
   };
 
+  const handleUploadData = (data: UploadDataItem[]) => {
+    setTasks(data.map(item => {
+        return {
+            ...item,
+            distribution: "uniform"
+        }
+    }));
+  };
+
   // -------------------------------------------------------------------
   //  Render the entire UI
   // -------------------------------------------------------------------
   return (
     <div className="p-8 space-y-6">
-      <h1 className="text-2xl font-bold">Monte Carlo Task Estimation</h1>
-
+      <h1 className="text-2xl font-bold text-center">Monte Carlo Task Estimation</h1>
+      <UploadForm onData={handleUploadData} />
       {/* Task Form for adding / editing */}
       <TaskForm
         mode={isEditing ? "edit" : "create"}
@@ -233,6 +243,7 @@ export default function HomePage() {
         onCancel={handleCancelEdit}
       />
 
+      <h3 className="text-xl font-bold text-center">List of tasks</h3>
       {/* Table of tasks (with edit/remove actions) */}
       {tasks.length > 0 && (
         <TaskTable
