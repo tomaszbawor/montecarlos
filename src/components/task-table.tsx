@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -22,7 +21,6 @@ interface TaskTableProps {
 export function TaskTable({ tasks, onEdit, onRemove }: TaskTableProps) {
   return (
     <Table>
-      <TableCaption>List of Tasks</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead>Name</TableHead>
