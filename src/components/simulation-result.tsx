@@ -73,7 +73,7 @@ export function SimulationResult({ simulationData }: SimulationResultProps) {
                   borderColor: "red",
                   borderWidth: 2,
                   label: {
-                    enabled: true,
+                    display: true,
                     position: "start",
                     content: `${confidence}% ≈ ${percentileValue.toFixed(1)}`,
                     color: "red",
