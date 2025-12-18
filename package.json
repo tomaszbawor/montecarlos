@@ -39,7 +39,7 @@
     "@biomejs/biome": "2.3.10",
     "@types/chart.js": "^4.0.0",
     "@types/jest": "^30.0.0",
-    "@types/node": "^20",
+    "@types/node": "^24.0.0",
     "@types/papaparse": "^5.3.16",
     "@types/react": "^19",
     "@types/react-dom": "^19",
