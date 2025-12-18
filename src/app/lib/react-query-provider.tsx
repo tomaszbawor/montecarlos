@@ -1,10 +1,11 @@
 // lib/react-query-provider.tsx// lib/react-query-provider.tsx
 "use client";
 
-import React, { useState } from "react";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { persistQueryClient } from "@tanstack/react-query-persist-client";
-import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+import type React from "react";
+import { useState } from "react";
 
 export function ReactQueryProvider({
   children,
@@ -17,7 +18,7 @@ export function ReactQueryProvider({
       defaultOptions: {
         queries: {
           // Keep data indefinitely unless you want it refetched
-          staleTime: Infinity,
+          staleTime: Number.POSITIVE_INFINITY,
           //cacheTime: Infinity,
         },
       },

@@ -1,6 +1,7 @@
-import React, { useRef } from "react";
+import Papa from "papaparse";
+import type React from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
-import Papa from 'papaparse';
 
 interface UploadButtonProps {
   onData: (data: UploadDataItem[]) => void;
@@ -12,22 +13,29 @@ export interface UploadDataItem {
   max: number;
 }
 
-export function UploadForm({onData}: UploadButtonProps) {
+export function UploadForm({ onData }: UploadButtonProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleButtonClick = () => {
     fileInputRef.current?.click();
   };
 
-  const mapObjects = (csvData: any[]): UploadDataItem[] => {
-    return csvData.slice(1).map((obj: string[]) => {
-      return {
-        name: `${obj[0]}: ${obj[1]}`,
-        min: parseInt(obj[2]),
-        max: parseInt(obj[3]),
-      }
-    })
-  }
+  type CsvRow = [string, string, string, string];
+
+  const isValidRow = (row: string[]): row is CsvRow => row.length >= 4;
+
+  const mapObjects = (csvData: string[][]): UploadDataItem[] => {
+    return csvData
+      .slice(1)
+      .filter(isValidRow)
+      .map(([projectName, taskName, minValue, maxValue]) => {
+        return {
+          name: `${projectName}: ${taskName}`,
+          min: Number.parseInt(minValue, 10),
+          max: Number.parseInt(maxValue, 10),
+        };
+      });
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -36,7 +44,7 @@ export function UploadForm({onData}: UploadButtonProps) {
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result as string;
-      const csv = Papa.parse(text);
+      const csv = Papa.parse<string[]>(text, { skipEmptyLines: true });
       onData(mapObjects(csv.data));
     };
     reader.readAsText(file);
@@ -51,7 +59,7 @@ export function UploadForm({onData}: UploadButtonProps) {
         type="file"
         accept=".csv"
         ref={fileInputRef}
-        style={{display: "none"}}
+        style={{ display: "none" }}
         onChange={handleFileChange}
       />
     </>

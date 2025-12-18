@@ -2,12 +2,19 @@
 
 "use client";
 
-import React, { useEffect, useState } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
+import type { Task } from "@/app/hooks/useTasks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
-import { Task } from "@/app/hooks/useTasks";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface TaskFormProps {
   mode: "create" | "edit";
@@ -18,12 +25,12 @@ interface TaskFormProps {
 }
 
 export function TaskForm({
-                           mode,
-                           initialTask,
-                           taskIndex,
-                           onSubmit,
-                           onCancel,
-                         }: TaskFormProps) {
+  mode,
+  initialTask,
+  taskIndex,
+  onSubmit,
+  onCancel,
+}: TaskFormProps) {
   // Local form state
   const [name, setName] = useState("");
   const [min, setMin] = useState("1");
@@ -45,8 +52,8 @@ export function TaskForm({
 
     const newTask: Task = {
       name,
-      min: parseFloat(min),
-      max: parseFloat(max),
+      min: Number.parseFloat(min),
+      max: Number.parseFloat(max),
       distribution,
     };
     onSubmit(newTask, taskIndex);
@@ -60,7 +67,6 @@ export function TaskForm({
   };
 
   return (
-
     <form
       onSubmit={handleSubmit}
       className="space-y-4 p-4 border rounded-md max-w-md"
@@ -96,7 +102,7 @@ export function TaskForm({
         <Label>Distribution</Label>
         <Select value={distribution} onValueChange={setDistribution}>
           <SelectTrigger>
-            <SelectValue placeholder="Select a distribution"/>
+            <SelectValue placeholder="Select a distribution" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="uniform">Uniform</SelectItem>
@@ -117,6 +123,5 @@ export function TaskForm({
         )}
       </div>
     </form>
-
   );
 }

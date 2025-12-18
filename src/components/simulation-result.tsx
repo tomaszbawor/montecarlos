@@ -1,14 +1,13 @@
-import React, { useMemo, useState } from "react";
-import { Slider } from "@/components/ui/slider";
+import type { ChartOptions } from "chart.js";
+import { useMemo, useState } from "react";
 import { Bar } from "react-chartjs-2";
+import { Slider } from "@/components/ui/slider";
 
 export interface SimulationResultProps {
   simulationData: number[];
 }
 
-
-export function SimulationResult({simulationData}: SimulationResultProps) {
-
+export function SimulationResult({ simulationData }: SimulationResultProps) {
   const [confidence, setConfidence] = useState<number>(95);
 
   // -------------------------------------------------------------------
@@ -25,7 +24,7 @@ export function SimulationResult({simulationData}: SimulationResultProps) {
 
   // 2) Create the histogram data from simulation
   const numberOfBins = 20;
-  const {labels, counts, minValue, maxValue} = useMemo(
+  const { labels, counts, minValue, maxValue } = useMemo(
     () => createHistogram(simulationData, numberOfBins),
     [simulationData],
   );
@@ -36,46 +35,14 @@ export function SimulationResult({simulationData}: SimulationResultProps) {
     const binSize = (maxValue - minValue) / numberOfBins;
     const idx = Math.floor((percentileValue - minValue) / binSize);
     return Math.min(Math.max(idx, 0), numberOfBins - 1);
-  }, [percentileValue, minValue, maxValue, numberOfBins, simulationData]);
+  }, [percentileValue, minValue, maxValue, simulationData]);
 
   // -------------------------------------------------------------------
   //  Creating a histogram from simulation data
   // -------------------------------------------------------------------
-  function createHistogram(data: number[], numberOfBins: number) {
-    if (!data.length) {
-      return {
-        labels: [] as string[],
-        counts: [] as number[],
-        minValue: 0,
-        maxValue: 0,
-      };
-    }
-
-    const minValue = Math.min(...data);
-    const maxValue = Math.max(...data);
-    const binSize = (maxValue - minValue) / numberOfBins;
-    const counts = new Array(numberOfBins).fill(0);
-
-    data.forEach((value) => {
-      const binIndex = Math.min(
-        Math.floor((value - minValue) / binSize),
-        numberOfBins - 1,
-      );
-      counts[binIndex] += 1;
-    });
-
-    const labels = counts.map((_, i) => {
-      const start = minValue + i * binSize;
-      const end = start + binSize;
-      return `${start.toFixed(1)} - ${end.toFixed(1)}`;
-    });
-
-    return {labels, counts, minValue, maxValue};
-  }
-
   // -------------------------------------------------------------------
-//  Chart.js data + annotation plugin config
-// -------------------------------------------------------------------
+  //  Chart.js data + annotation plugin config
+  // -------------------------------------------------------------------
   const chartData = {
     labels,
     datasets: [
@@ -87,10 +54,10 @@ export function SimulationResult({simulationData}: SimulationResultProps) {
     ],
   };
 
-  const chartOptions: any = {
+  const chartOptions: ChartOptions<"bar"> = {
     responsive: true,
     plugins: {
-      legend: {display: false},
+      legend: { display: false },
       title: {
         display: true,
         text: "Histogram of Total Task Times",
@@ -99,58 +66,88 @@ export function SimulationResult({simulationData}: SimulationResultProps) {
         annotations:
           percentileBinIndex !== null && simulationData.length > 0
             ? {
-              percentileLine: {
-                type: "line",
-                xMin: percentileBinIndex + 0.5, // shift line to boundary between bins
-                xMax: percentileBinIndex + 0.5,
-                borderColor: "red",
-                borderWidth: 2,
-                label: {
-                  enabled: true,
-                  position: "start",
-                  content: `${confidence}% ≈ ${percentileValue.toFixed(1)}`,
-                  color: "red",
-                  backgroundColor: "white",
+                percentileLine: {
+                  type: "line",
+                  xMin: percentileBinIndex + 0.5, // shift line to boundary between bins
+                  xMax: percentileBinIndex + 0.5,
+                  borderColor: "red",
+                  borderWidth: 2,
+                  label: {
+                    display: true,
+                    position: "start",
+                    content: `${confidence}% ≈ ${percentileValue.toFixed(1)}`,
+                    color: "red",
+                    backgroundColor: "white",
+                  },
                 },
-              },
-            }
+              }
             : {},
       },
     },
     scales: {
       x: {
-        title: {display: true, text: "Total Time"},
+        title: { display: true, text: "Total Time" },
       },
       y: {
-        title: {display: true, text: "Frequency"},
+        title: { display: true, text: "Frequency" },
       },
     },
   };
 
   return (
-    <>
-      <div className="mt-8 space-y-6">
-        {/* Confidence slider */}
-        <div className="max-w-lg space-y-2">
-          <p className="font-semibold">Confidence: {confidence}%</p>
-          <Slider
-            defaultValue={[confidence]}
-            min={0}
-            max={100}
-            step={1}
-            onValueChange={(val) => setConfidence(val[0])}
-          />
-          <p className="text-sm text-gray-500">
-            By <strong>{confidence}%</strong> certainty, tasks finish in about{" "}
-            <strong>{percentileValue.toFixed(2)}</strong> time units.
-          </p>
-        </div>
-
-        {/* Histogram chart */}
-        <div className="max-w-3xl">
-          <Bar data={chartData} options={chartOptions}/>
-        </div>
+    <div className="mt-8 space-y-6">
+      {/* Confidence slider */}
+      <div className="max-w-lg space-y-2">
+        <p className="font-semibold">Confidence: {confidence}%</p>
+        <Slider
+          defaultValue={[confidence]}
+          min={0}
+          max={100}
+          step={1}
+          onValueChange={(val) => setConfidence(val[0])}
+        />
+        <p className="text-sm text-gray-500">
+          By <strong>{confidence}%</strong> certainty, tasks finish in about{" "}
+          <strong>{percentileValue.toFixed(2)}</strong> time units.
+        </p>
       </div>
-    </>
+
+      {/* Histogram chart */}
+      <div className="max-w-3xl">
+        <Bar data={chartData} options={chartOptions} />
+      </div>
+    </div>
   );
+}
+
+function createHistogram(data: number[], numberOfBins: number) {
+  if (!data.length) {
+    return {
+      labels: [],
+      counts: [],
+      minValue: 0,
+      maxValue: 0,
+    };
+  }
+
+  const minValue = Math.min(...data);
+  const maxValue = Math.max(...data);
+  const binSize = (maxValue - minValue) / numberOfBins;
+  const counts = new Array(numberOfBins).fill(0);
+
+  data.forEach((value) => {
+    const binIndex = Math.min(
+      Math.floor((value - minValue) / binSize),
+      numberOfBins - 1,
+    );
+    counts[binIndex] += 1;
+  });
+
+  const labels = counts.map((_, i) => {
+    const start = minValue + i * binSize;
+    const end = start + binSize;
+    return `${start.toFixed(1)} - ${end.toFixed(1)}`;
+  });
+
+  return { labels, counts, minValue, maxValue };
 }

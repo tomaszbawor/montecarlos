@@ -1,26 +1,30 @@
 "use client";
 
+// --- Chart.js + annotation plugin ---
+import {
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  Title,
+  Tooltip,
+} from "chart.js";
+import annotationPlugin from "chartjs-plugin-annotation";
 import React, { useState } from "react";
-
+import Modal from "react-modal";
 // --- React Query Tasks Hooks ---
-import { Task, useSetTasks, useTasks } from "@/app/hooks/useTasks";
-
-// --- UI Components for tasks ---
-import { TaskForm } from "@/components/task-form";
-import { TaskTable } from "@/components/task-table";
-import { UploadDataItem, UploadForm } from '@/components/upload-form'
+import { type Task, useSetTasks, useTasks } from "@/app/hooks/useTasks";
 
 // --- Monte Carlo logic ---
 import { runMonteCarlo } from "@/app/lib/monte-carlo";
-
+import { SimulationResult } from "@/components/simulation-result";
+// --- UI Components for tasks ---
+import { TaskForm } from "@/components/task-form";
+import { TaskTable } from "@/components/task-table";
 // --- shadcn/ui components ---
 import { Button } from "@/components/ui/button";
-import Modal from 'react-modal';
-
-// --- Chart.js + annotation plugin ---
-import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip, } from "chart.js";
-import annotationPlugin from "chartjs-plugin-annotation";
-import { SimulationResult } from "@/components/simulation-result";
+import { type UploadDataItem, UploadForm } from "@/components/upload-form";
 
 // Register Chart.js components and plugins
 ChartJS.register(
@@ -35,17 +39,17 @@ ChartJS.register(
 
 const ITERATION_AMOUNT = 20000;
 
-Modal.setAppElement('body');
+Modal.setAppElement("body");
 
 const modalStyles = {
   content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    width: '490px',
-    marginRight: '-30%',
-    transform: 'translate(-50%, -50%)',
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    width: "490px",
+    marginRight: "-30%",
+    transform: "translate(-50%, -50%)",
   },
 };
 
@@ -106,18 +110,20 @@ export default function HomePage() {
   }
 
   const handleUploadData = (data: UploadDataItem[]) => {
-    setTasks(data.map(item => {
-      return {
-        ...item,
-        distribution: "uniform"
-      }
-    }));
+    setTasks(
+      data.map((item) => {
+        return {
+          ...item,
+          distribution: "uniform",
+        };
+      }),
+    );
   };
 
   const clearAllTasks = () => {
-    setTasks([])
-    setSimulationData([])
-  }
+    setTasks([]);
+    setSimulationData([]);
+  };
 
   function openModal(task?: Task) {
     if (task) setTaskEdited(task);
@@ -134,17 +140,21 @@ export default function HomePage() {
   // -------------------------------------------------------------------
   return (
     <div className="p-8 space-y-6">
-      <h1 className="text-2xl font-bold text-center">Monte Carlo Task Estimation</h1>
+      <h1 className="text-2xl font-bold text-center">
+        Monte Carlo Task Estimation
+      </h1>
       <div className="flex flex-row gap-4 justify-center">
-        <UploadForm onData={handleUploadData}/>
-        <Button disabled={tasks.length === 0} onClick={clearAllTasks}>Clear All Tasks</Button>
+        <UploadForm onData={handleUploadData} />
+        <Button disabled={tasks.length === 0} onClick={clearAllTasks}>
+          Clear All Tasks
+        </Button>
       </div>
 
-      {tasks.length > 0 && <div className="flex flex-row justify-center">
-          <Button onClick={handleSimulate}>
-              Run Monte Carlo Simulation
-          </Button>
-      </div>}
+      {tasks.length > 0 && (
+        <div className="flex flex-row justify-center">
+          <Button onClick={handleSimulate}>Run Monte Carlo Simulation</Button>
+        </div>
+      )}
 
       <div className="flex flex-row gap-4 justify-around">
         <Modal
@@ -154,17 +164,17 @@ export default function HomePage() {
           contentLabel="Add/Edit Task"
         >
           <TaskForm
-              mode={taskEdited ? "edit" : "create"}
-              initialTask={taskEdited || undefined}
-              taskIndex={taskEdited ? tasks.indexOf(taskEdited) : undefined}
-              onSubmit={handleSubmitTask}
-              onCancel={handleCancelEdit}
+            mode={taskEdited ? "edit" : "create"}
+            initialTask={taskEdited || undefined}
+            taskIndex={taskEdited ? tasks.indexOf(taskEdited) : undefined}
+            onSubmit={handleSubmitTask}
+            onCancel={handleCancelEdit}
           />
         </Modal>
       </div>
 
       {simulationData.length > 0 && (
-        <SimulationResult simulationData={simulationData}/>
+        <SimulationResult simulationData={simulationData} />
       )}
 
       {tasks.length > 0 && (
@@ -177,7 +187,6 @@ export default function HomePage() {
           />
         </>
       )}
-
     </div>
   );
 }
