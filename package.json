@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.8",
-    "@types/chart.js": "^2.9.41",
+    "@types/chart.js": "^4.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/papaparse": "^5.3.16",
