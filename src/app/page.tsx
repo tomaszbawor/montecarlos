@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from "chart.js";
 import annotationPlugin from "chartjs-plugin-annotation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 // --- React Query Tasks Hooks ---
 import { type Task, useSetTasks, useTasks } from "@/app/hooks/useTasks";
@@ -59,6 +59,17 @@ export default function HomePage() {
   // -------------------------------------------------------------------
   const tasks = useTasks(); // read tasks from the React Query cache
   const setTasks = useSetTasks(); // update tasks in the React Query cache
+
+  useEffect(() => {
+    setTasks([
+      {
+        name: "Test",
+        distribution: "uniform",
+        min: 1,
+        max: 3,
+      },
+    ]);
+  });
 
   // -------------------------------------------------------------------
   //  Local state for editing tasks
