@@ -31,9 +31,8 @@ function randomValue(task: Task): number {
       const c = (mode - min) / (max - min);
       if (u < c) {
         return min + Math.sqrt(u * (max - min) * (mode - min));
-      } else {
-        return max - Math.sqrt((1 - u) * (max - min) * (max - mode));
       }
+      return max - Math.sqrt((1 - u) * (max - min) * (max - mode));
     }
     default:
       // fallback to uniform if no distribution is selected
@@ -48,10 +47,7 @@ function randomValue(task: Task): number {
  * @param iterations - how many simulation runs (e.g., 10_000).
  * @returns an array of total times from each simulation run.
  */
-export function runMonteCarlo(
-  tasks: Task[],
-  iterations: number = 50000,
-): number[] {
+export function runMonteCarlo(tasks: Task[], iterations = 50000): number[] {
   const totals: number[] = [];
 
   for (let i = 0; i < iterations; i++) {

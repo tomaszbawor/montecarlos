@@ -1,6 +1,7 @@
-import React, { useRef } from "react";
+import Papa from "papaparse";
+import type React from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
-import Papa from 'papaparse';
 
 interface UploadButtonProps {
   onData: (data: UploadDataItem[]) => void;
@@ -12,7 +13,7 @@ export interface UploadDataItem {
   max: number;
 }
 
-export function UploadForm({onData}: UploadButtonProps) {
+export function UploadForm({ onData }: UploadButtonProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleButtonClick = () => {
@@ -23,11 +24,11 @@ export function UploadForm({onData}: UploadButtonProps) {
     return csvData.slice(1).map((obj: string[]) => {
       return {
         name: `${obj[0]}: ${obj[1]}`,
-        min: parseInt(obj[2]),
-        max: parseInt(obj[3]),
-      }
-    })
-  }
+        min: Number.parseInt(obj[2], 10),
+        max: Number.parseInt(obj[3], 10),
+      };
+    });
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,7 +52,7 @@ export function UploadForm({onData}: UploadButtonProps) {
         type="file"
         accept=".csv"
         ref={fileInputRef}
-        style={{display: "none"}}
+        style={{ display: "none" }}
         onChange={handleFileChange}
       />
     </>

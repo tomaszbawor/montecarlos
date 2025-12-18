@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { columns, JiraTask } from "./columns";
+import { columns, type JiraTask } from "./columns";
 import { DataTable } from "./data-table";
 
 async function getData(): Promise<JiraTask[]> {
@@ -34,4 +34,3 @@ export default async function JiraTasksPage() {
     </div>
   );
 }
-

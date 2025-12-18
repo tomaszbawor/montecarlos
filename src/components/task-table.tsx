@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import type { Task } from "@/app/lib/monte-carlo";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -10,7 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Task } from "@/app/lib/monte-carlo";
 
 interface TaskTableProps {
   tasks: Task[];
@@ -32,7 +31,7 @@ export function TaskTable({ tasks, onEdit, onRemove }: TaskTableProps) {
       </TableHeader>
       <TableBody>
         {tasks.map((task, index) => (
-          <TableRow key={index}>
+          <TableRow key={task.name}>
             <TableCell>{task.name}</TableCell>
             <TableCell>{task.min}</TableCell>
             <TableCell>{task.max}</TableCell>
