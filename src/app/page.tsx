@@ -11,9 +11,9 @@ import {
   Tooltip,
 } from "chart.js";
 import annotationPlugin from "chartjs-plugin-annotation";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "react-modal";
-// --- React Query Tasks Hooks ---
+// --- Effect Atom Tasks Hooks ---
 import { type Task, useSetTasks, useTasks } from "@/app/hooks/useTasks";
 
 // --- Monte Carlo logic ---
@@ -55,16 +55,27 @@ const modalStyles = {
 
 export default function HomePage() {
   // -------------------------------------------------------------------
-  //  React Query: get and set tasks (persisted in localStorage)
+  //  Effect Atoms: get and set tasks (persisted in localStorage)
   // -------------------------------------------------------------------
-  const tasks = useTasks(); // read tasks from the React Query cache
-  const setTasks = useSetTasks(); // update tasks in the React Query cache
+  const tasks = useTasks();
+  const setTasks = useSetTasks();
+
+  useEffect(() => {
+    setTasks([
+      {
+        name: "Test",
+        distribution: "uniform",
+        min: 0,
+        max: 0,
+      },
+    ]);
+  }, [setTasks]);
 
   // -------------------------------------------------------------------
   //  Local state for editing tasks
   // -------------------------------------------------------------------
   const [taskEdited, setTaskEdited] = useState<Task | null>(null);
-  const [modalIsOpen, setIsOpen] = React.useState(false);
+  const [modalIsOpen, setIsOpen] = useState(false);
 
   // -------------------------------------------------------------------
   //  Local state for simulation results + confidence slider

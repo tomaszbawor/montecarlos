@@ -4,7 +4,7 @@
 
 import type React from "react";
 import { useEffect, useState } from "react";
-import type { Task } from "@/app/hooks/useTasks";
+import type { Task } from "@/app/lib/monte-carlo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
