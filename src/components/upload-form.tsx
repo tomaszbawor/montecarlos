@@ -20,14 +20,21 @@ export function UploadForm({ onData }: UploadButtonProps) {
     fileInputRef.current?.click();
   };
 
-  const mapObjects = (csvData: any[]): UploadDataItem[] => {
-    return csvData.slice(1).map((obj: string[]) => {
-      return {
-        name: `${obj[0]}: ${obj[1]}`,
-        min: Number.parseInt(obj[2], 10),
-        max: Number.parseInt(obj[3], 10),
-      };
-    });
+  type CsvRow = [string, string, string, string];
+
+  const isValidRow = (row: string[]): row is CsvRow => row.length >= 4;
+
+  const mapObjects = (csvData: string[][]): UploadDataItem[] => {
+    return csvData
+      .slice(1)
+      .filter(isValidRow)
+      .map(([projectName, taskName, minValue, maxValue]) => {
+        return {
+          name: `${projectName}: ${taskName}`,
+          min: Number.parseInt(minValue, 10),
+          max: Number.parseInt(maxValue, 10),
+        };
+      });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,7 +44,7 @@ export function UploadForm({ onData }: UploadButtonProps) {
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result as string;
-      const csv = Papa.parse(text);
+      const csv = Papa.parse<string[]>(text, { skipEmptyLines: true });
       onData(mapObjects(csv.data));
     };
     reader.readAsText(file);

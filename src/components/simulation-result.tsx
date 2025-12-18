@@ -1,6 +1,6 @@
 import type { ChartOptions } from "chart.js";
 import { useMemo, useState } from "react";
-import { Bar, ChartProps } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 import { Slider } from "@/components/ui/slider";
 
 export interface SimulationResultProps {
@@ -40,38 +40,6 @@ export function SimulationResult({ simulationData }: SimulationResultProps) {
   // -------------------------------------------------------------------
   //  Creating a histogram from simulation data
   // -------------------------------------------------------------------
-  function createHistogram(data: number[], numberOfBins: number) {
-    if (!data.length) {
-      return {
-        labels: [] as string[],
-        counts: [] as number[],
-        minValue: 0,
-        maxValue: 0,
-      };
-    }
-
-    const minValue = Math.min(...data);
-    const maxValue = Math.max(...data);
-    const binSize = (maxValue - minValue) / numberOfBins;
-    const counts = new Array(numberOfBins).fill(0);
-
-    data.forEach((value) => {
-      const binIndex = Math.min(
-        Math.floor((value - minValue) / binSize),
-        numberOfBins - 1,
-      );
-      counts[binIndex] += 1;
-    });
-
-    const labels = counts.map((_, i) => {
-      const start = minValue + i * binSize;
-      const end = start + binSize;
-      return `${start.toFixed(1)} - ${end.toFixed(1)}`;
-    });
-
-    return { labels, counts, minValue, maxValue };
-  }
-
   // -------------------------------------------------------------------
   //  Chart.js data + annotation plugin config
   // -------------------------------------------------------------------
@@ -86,7 +54,7 @@ export function SimulationResult({ simulationData }: SimulationResultProps) {
     ],
   };
 
-  const chartOptions: any = {
+  const chartOptions: ChartOptions<"bar"> = {
     responsive: true,
     plugins: {
       legend: { display: false },
@@ -150,4 +118,36 @@ export function SimulationResult({ simulationData }: SimulationResultProps) {
       </div>
     </div>
   );
+}
+
+function createHistogram(data: number[], numberOfBins: number) {
+  if (!data.length) {
+    return {
+      labels: [],
+      counts: [],
+      minValue: 0,
+      maxValue: 0,
+    };
+  }
+
+  const minValue = Math.min(...data);
+  const maxValue = Math.max(...data);
+  const binSize = (maxValue - minValue) / numberOfBins;
+  const counts = new Array(numberOfBins).fill(0);
+
+  data.forEach((value) => {
+    const binIndex = Math.min(
+      Math.floor((value - minValue) / binSize),
+      numberOfBins - 1,
+    );
+    counts[binIndex] += 1;
+  });
+
+  const labels = counts.map((_, i) => {
+    const start = minValue + i * binSize;
+    const end = start + binSize;
+    return `${start.toFixed(1)} - ${end.toFixed(1)}`;
+  });
+
+  return { labels, counts, minValue, maxValue };
 }
