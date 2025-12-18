@@ -1,11 +1,11 @@
 /// app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
-import { ReactQueryProvider } from "@/app/lib/react-query-provider";
+import { AtomProvider } from "@/app/lib/atom-provider";
 
 export const metadata: Metadata = {
   title: "Monte Carlo App",
-  description: "Persisting with TanStack Query v5",
+  description: "State managed with Effect atoms",
 };
 
 export default function RootLayout({
@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ReactQueryProvider>{children}</ReactQueryProvider>
+        <AtomProvider>{children}</AtomProvider>
       </body>
     </html>
   );
