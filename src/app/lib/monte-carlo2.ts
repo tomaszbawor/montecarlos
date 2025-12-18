@@ -60,17 +60,17 @@ function failsafe(estimateInHours: number) {
 }
 
 function normInvWithFailsafe(minDays: number, maxDays: number, standardDeviationParameter: number) {
-    let estimateInHours = normInvMS(getRandO1NotInclusive(), ((h(minDays) + h(maxDays)) / 2), ((h(maxDays) - h(minDays)) / standardDeviationParameter))
+    const estimateInHours = normInvMS(getRandO1NotInclusive(), ((h(minDays) + h(maxDays)) / 2), ((h(maxDays) - h(minDays)) / standardDeviationParameter))
     return failsafe(estimateInHours)
 }
 
 function normInvWithFailsafeForSickLeave(minWeeks: number, maxWeeks: number, standardDeviationParameter: number) {
-    let estimateInDays = normInvMS(getRandO1NotInclusive(), ((sh(minWeeks) + sh(maxWeeks)) / 2), ((sh(maxWeeks) - sh(minWeeks)) / standardDeviationParameter))
+    const estimateInDays = normInvMS(getRandO1NotInclusive(), ((sh(minWeeks) + sh(maxWeeks)) / 2), ((sh(maxWeeks) - sh(minWeeks)) / standardDeviationParameter))
     return failsafe(estimateInDays)
 }
 
 function normInvWithFailsafePercentage(min: number, max: number, standardDeviationParameter: number) {
-    let estimateInPercentage = normInvMS(getRandO1NotInclusive(), (min + max) / 2, (max - min) / standardDeviationParameter)
+    const estimateInPercentage = normInvMS(getRandO1NotInclusive(), (min + max) / 2, (max - min) / standardDeviationParameter)
     return failsafe(estimateInPercentage)
 }
 
@@ -82,24 +82,24 @@ function normInvWithFailsafePercentage(min: number, max: number, standardDeviati
  */
 function calculateTaskTimeInHours(task: Task, standardDeviationParameter: number): number {
     const {minEstimateDays, maxEstimateDays} = task
-    let estimateInHours = normInvWithFailsafe(minEstimateDays, maxEstimateDays, standardDeviationParameter)
+    const estimateInHours = normInvWithFailsafe(minEstimateDays, maxEstimateDays, standardDeviationParameter)
     return estimateInHours
 }
 
 function calculateSickLeaveTimeInDays(dev: Workforce, standardDeviationParameter: number): number {
     const {sickLeaveMinWeeks, sickLeaveMaxWeeks} = dev
-    let estimateInDays = normInvWithFailsafeForSickLeave(sickLeaveMinWeeks, sickLeaveMaxWeeks, standardDeviationParameter)
+    const estimateInDays = normInvWithFailsafeForSickLeave(sickLeaveMinWeeks, sickLeaveMaxWeeks, standardDeviationParameter)
     return estimateInDays
 }
 
 function calculateDevEngagementInPercentage(dev: Workforce, standardDeviationParameter: number): number {
     const {engagementMinPercentage, engagementMaxPercentage} = dev
-    let estimateInPercentage = normInvWithFailsafePercentage(engagementMinPercentage, engagementMaxPercentage, standardDeviationParameter)
+    const estimateInPercentage = normInvWithFailsafePercentage(engagementMinPercentage, engagementMaxPercentage, standardDeviationParameter)
     return estimateInPercentage
 }
 
 function calculateMarketProductivity(min: number, max: number, standardDeviationParameter: number): number {
-    let estimateInPercentage = normInvWithFailsafePercentage(min, max, standardDeviationParameter)
+    const estimateInPercentage = normInvWithFailsafePercentage(min, max, standardDeviationParameter)
     return estimateInPercentage
 }
 
@@ -136,17 +136,17 @@ export function runMonteCarloSimulationNew(
 ) {
 
     let positiveSimResults: number = 0
-    let workdaysCalculatedBasedOnProjectStartAndEnd = calculateWorkdays(simulationSettings.projectStartDate, simulationSettings.projectEndDate)
+    const workdaysCalculatedBasedOnProjectStartAndEnd = calculateWorkdays(simulationSettings.projectStartDate, simulationSettings.projectEndDate)
 
     for (let i = 0; i < iterations; i++) {
 
         let totalHoursForAllStories: number = 0
         let totalHoursForAllDevs: number = 0
-        let estimatesInHours: number[] = []
-        let sickLeavesInDays: number[] = []
-        let engagementsInPercentage: number [] = [] // [0.01-0.99]
+        const estimatesInHours: number[] = []
+        const sickLeavesInDays: number[] = []
+        const engagementsInPercentage: number [] = [] // [0.01-0.99]
         let marketProductivityInPercentage: number = 0
-        let effortsInHours: number[] = []
+        const effortsInHours: number[] = []
 
         for (const task of simulationSettings.tasks) {
             estimatesInHours.push(calculateTaskTimeInHours(task, simulationSettings.standardDeviationParameter))
@@ -161,11 +161,11 @@ export function runMonteCarloSimulationNew(
             simulationSettings.marketAverageAgileProductivityMaxPercentage, simulationSettings.standardDeviationParameter);
 
         for (let j = 0; j < simulationSettings.developers.length; j++) {
-            let devVacationInDays = simulationSettings.developers[j].vacationDays
-            let devSickLeaveInDays = sickLeavesInDays[j]
-            let devEngagementInPercentage = engagementsInPercentage[j]
-            let workdays = workdaysCalculatedBasedOnProjectStartAndEnd
-            let devEffortInHours = (workdays - devVacationInDays - devSickLeaveInDays) * 8 * marketProductivityInPercentage * devEngagementInPercentage
+            const devVacationInDays = simulationSettings.developers[j].vacationDays
+            const devSickLeaveInDays = sickLeavesInDays[j]
+            const devEngagementInPercentage = engagementsInPercentage[j]
+            const workdays = workdaysCalculatedBasedOnProjectStartAndEnd
+            const devEffortInHours = (workdays - devVacationInDays - devSickLeaveInDays) * 8 * marketProductivityInPercentage * devEngagementInPercentage
             effortsInHours.push(devEffortInHours)
         }
 
@@ -177,11 +177,11 @@ export function runMonteCarloSimulationNew(
             totalHoursForAllDevs += devEffort
         }
 
-        let worforceTimeLeft = totalHoursForAllDevs - totalHoursForAllStories
-        let simResult = worforceTimeLeft > 0 ? true : false
+        const worforceTimeLeft = totalHoursForAllDevs - totalHoursForAllStories
+        const simResult = worforceTimeLeft > 0 ? true : false
         if(simResult) positiveSimResults++
     }
 
-    let monteCarloResultPercentage = (positiveSimResults / iterations) * 100
+    const monteCarloResultPercentage = (positiveSimResults / iterations) * 100
     return monteCarloResultPercentage
 }
