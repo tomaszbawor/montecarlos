@@ -4,17 +4,11 @@
 
 import type React from "react";
 import { useEffect, useState } from "react";
-import type { Task } from "@/app/lib/monte-carlo";
+import { v4 } from "uuid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import type { Task } from "@/domain/Task";
 
 interface TaskFormProps {
   mode: "create" | "edit";
@@ -35,15 +29,13 @@ export function TaskForm({
   const [name, setName] = useState("");
   const [min, setMin] = useState("1");
   const [max, setMax] = useState("3");
-  const [distribution, setDistribution] = useState("uniform");
 
   // Pre-fill if editing
   useEffect(() => {
     if (initialTask) {
-      setName(initialTask.name);
-      setMin(initialTask.min.toString());
-      setMax(initialTask.max.toString());
-      setDistribution(initialTask.distribution);
+      setName(initialTask.title);
+      setMin(initialTask.minEstimate.toString());
+      setMax(initialTask.maxEstimate.toString());
     }
   }, [initialTask]);
 
@@ -51,10 +43,10 @@ export function TaskForm({
     e.preventDefault();
 
     const newTask: Task = {
-      name,
-      min: Number.parseFloat(min),
-      max: Number.parseFloat(max),
-      distribution,
+      id: v4(),
+      title: name,
+      minEstimate: Number.parseFloat(min),
+      maxEstimate: Number.parseFloat(max),
     };
     onSubmit(newTask, taskIndex);
     // Optionally reset if in create mode
@@ -62,7 +54,6 @@ export function TaskForm({
       setName("");
       setMin("1");
       setMax("3");
-      setDistribution("uniform");
     }
   };
 
@@ -97,19 +88,6 @@ export function TaskForm({
           value={max}
           onChange={(e) => setMax(e.target.value)}
         />
-      </div>
-      <div>
-        <Label>Distribution</Label>
-        <Select value={distribution} onValueChange={setDistribution}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a distribution" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="uniform">Uniform</SelectItem>
-            <SelectItem value="triangular">Triangular</SelectItem>
-            {/* Add more distributions if desired */}
-          </SelectContent>
-        </Select>
       </div>
 
       <div className="flex gap-2">

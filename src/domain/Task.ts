@@ -6,4 +6,4 @@ export const TaskSchema = Schema.Struct({
   maxEstimate: Schema.Number,
 });
 
-export const Task = TaskSchema.Type;
+export type Task = typeof TaskSchema.Type;

@@ -1,7 +1,7 @@
 "use client";
 
 import Modal from "react-modal";
-import type { Task } from "@/app/hooks/useTasks";
+import type { Task } from "@/domain/Task";
 import { TaskForm } from "@/features/tasks/components/task-form";
 
 Modal.setAppElement("body");

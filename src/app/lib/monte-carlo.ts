@@ -1,11 +1,6 @@
 // lib/monte-carlo.ts
 
-export interface Task {
-  name: string;
-  distribution: string;
-  min: number;
-  max: number;
-}
+import type { Task } from "@/domain/Task";
 
 /**
  * Generate a random value from the specified distribution.
@@ -15,29 +10,8 @@ export interface Task {
  *   - triangular: simple triangular approximation
  */
 function randomValue(task: Task): number {
-  const { distribution, min, max } = task;
-
-  switch (distribution) {
-    case "uniform": {
-      // uniform distribution between [min, max]
-      return Math.random() * (max - min) + min;
-    }
-    case "triangular": {
-      // triangular distribution: (min + max + mode) / 3
-      // For simplicity, let's assume mode ~ midpoint
-      const mode = (min + max) / 2;
-      // A simple approach to triangular distribution:
-      const u = Math.random();
-      const c = (mode - min) / (max - min);
-      if (u < c) {
-        return min + Math.sqrt(u * (max - min) * (mode - min));
-      }
-      return max - Math.sqrt((1 - u) * (max - min) * (max - mode));
-    }
-    default:
-      // fallback to uniform if no distribution is selected
-      return Math.random() * (max - min) + min;
-  }
+  const { minEstimate: min, maxEstimate: max } = task;
+  return Math.random() * (max - min) + min;
 }
 
 /**
@@ -47,7 +21,10 @@ function randomValue(task: Task): number {
  * @param iterations - how many simulation runs (e.g., 10_000).
  * @returns an array of total times from each simulation run.
  */
-export function runMonteCarlo(tasks: Task[], iterations = 50000): number[] {
+export function runMonteCarlo(
+  tasks: readonly Task[],
+  iterations = 50000,
+): number[] {
   const totals: number[] = [];
 
   for (let i = 0; i < iterations; i++) {

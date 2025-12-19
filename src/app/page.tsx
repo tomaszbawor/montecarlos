@@ -11,10 +11,11 @@ import {
 } from "chart.js";
 import annotationPlugin from "chartjs-plugin-annotation";
 import { useEffect, useState } from "react";
-import { type Task, useSetTasks, useTasks } from "@/app/hooks/useTasks";
-
+import { v4 } from "uuid";
 import { runMonteCarlo } from "@/app/lib/monte-carlo";
+import { useSetTasks, useTasks } from "@/app/state/tasks-atom";
 import { Button } from "@/components/ui/button";
+import type { Task } from "@/domain/Task";
 import { SimulationResult } from "@/features/simulation/components/simulation-result";
 import { TaskCsvImport } from "@/features/tasks/components/task-csv-import";
 import { TaskModal } from "@/features/tasks/components/task-modal";
@@ -37,17 +38,19 @@ export default function HomePage() {
   const tasks = useTasks();
   const setTasks = useSetTasks();
 
-  // init at start with one task
+  // init at start with one task only if no tasks are present (e.g., first visit)
   useEffect(() => {
-    setTasks([
-      {
-        name: "Test",
-        distribution: "uniform",
-        min: 1,
-        max: 4,
-      },
-    ]);
-  }, [setTasks]);
+    if (tasks.length === 0) {
+      setTasks([
+        {
+          id: v4(),
+          title: "Test",
+          minEstimate: 1,
+          maxEstimate: 4,
+        },
+      ]);
+    }
+  }, [setTasks, tasks.length]);
 
   // -------------------------------------------------------------------
   //  Local state for editing tasks

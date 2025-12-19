@@ -1,6 +1,5 @@
 "use client";
 
-import type { Task } from "@/app/lib/monte-carlo";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -10,9 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { Task } from "@/domain/Task";
 
 interface TaskTableProps {
-  tasks: Task[];
+  tasks: readonly Task[];
   onEdit: (task: Task, index: number) => void;
   onRemove: (index: number) => void;
 }
@@ -25,17 +25,15 @@ export function TaskTable({ tasks, onEdit, onRemove }: TaskTableProps) {
           <TableHead>Name</TableHead>
           <TableHead>Min</TableHead>
           <TableHead>Max</TableHead>
-          <TableHead>Distribution</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {tasks.map((task, index) => (
-          <TableRow key={task.name}>
-            <TableCell>{task.name}</TableCell>
-            <TableCell>{task.min}</TableCell>
-            <TableCell>{task.max}</TableCell>
-            <TableCell>{task.distribution}</TableCell>
+          <TableRow key={task.id}>
+            <TableCell>{task.title}</TableCell>
+            <TableCell>{task.minEstimate}</TableCell>
+            <TableCell>{task.maxEstimate}</TableCell>
             <TableCell>
               <div className="flex gap-2">
                 <Button

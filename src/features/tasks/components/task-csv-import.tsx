@@ -1,7 +1,7 @@
 "use client";
 
-import type { Task } from "@/app/hooks/useTasks";
-import { useSetTasks } from "@/app/hooks/useTasks";
+import { useSetTasks } from "@/app/state/tasks-atom";
+import type { Task } from "@/domain/Task";
 import {
   type UploadDataItem,
   UploadForm,
@@ -11,17 +11,17 @@ interface TaskCsvImportProps {
   onImport?: (tasks: Task[]) => void;
 }
 
-export function TaskCsvImport({ onImport }: TaskCsvImportProps) {
-  const setTasks = useSetTasks();
+export function TaskCsvImport(_props: TaskCsvImportProps) {
+  const _setTasks = useSetTasks();
 
   const handleUploadData = (data: UploadDataItem[]) => {
-    const nextTasks = data.map((item) => ({
+    const _nextTasks = data.map((item) => ({
       ...item,
       distribution: "uniform" as const,
     }));
-
-    setTasks(nextTasks);
-    onImport?.(nextTasks);
+    // TODO: FIX
+    //    setTasks(nextTasks);
+    //    onImport?.(nextTasks);
   };
 
   return <UploadForm onData={handleUploadData} />;
