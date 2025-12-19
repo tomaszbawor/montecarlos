@@ -15,7 +15,7 @@
     "@effect-atom/atom": "^0.4.11",
     "@effect-atom/atom-react": "^0.4.4",
     "@effect/experimental": "^0.57.11",
-    "@effect/platform": "^0.93.8",
+    "@effect/platform": "^0.94.0",
     "@effect/rpc": "^0.72.2",
     "@tanstack/react-table": "^8.21.3",
     "chart.js": "^4.5.1",
