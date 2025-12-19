@@ -12,11 +12,10 @@
     "check": "biome check --write"
   },
   "dependencies": {
-    "@effect-atom/atom": "^0.4.11",
-    "@effect-atom/atom-react": "^0.4.4",
-    "@effect/experimental": "^0.57.11",
-    "@effect/platform": "^0.93.8",
-    "@effect/rpc": "^0.72.2",
+    "@effect-atom/atom": "0.4.11",
+    "@effect-atom/atom-react": "0.4.4",
+    "@effect/experimental": "0.58.0",
+    "@effect/platform": "0.94.0",
     "@tanstack/react-table": "^8.21.3",
     "chart.js": "^4.5.1",
     "chartjs-plugin-annotation": "^3.1.0",
