@@ -6,4 +6,7 @@ export const TaskSchema = Schema.Struct({
   maxEstimate: Schema.Number,
 });
 
-export type Task = typeof TaskSchema.Type;
+export interface Task extends Schema.Schema.Type<typeof TaskSchema> {}
+
+// const Task = typeof TaskSchema.Type;
+//
