@@ -1,6 +1,5 @@
 "use client";
 
-// --- Chart.js + annotation plugin ---
 import {
   BarElement,
   CategoryScale,
@@ -12,19 +11,14 @@ import {
 } from "chart.js";
 import annotationPlugin from "chartjs-plugin-annotation";
 import { useEffect, useState } from "react";
-import Modal from "react-modal";
-// --- Effect Atom Tasks Hooks ---
 import { type Task, useSetTasks, useTasks } from "@/app/hooks/useTasks";
 
-// --- Monte Carlo logic ---
 import { runMonteCarlo } from "@/app/lib/monte-carlo";
-import { SimulationResult } from "@/components/simulation-result";
-// --- UI Components for tasks ---
-import { TaskForm } from "@/components/task-form";
-import { TaskTable } from "@/components/task-table";
-// --- shadcn/ui components ---
 import { Button } from "@/components/ui/button";
-import { type UploadDataItem, UploadForm } from "@/components/upload-form";
+import { SimulationResult } from "@/features/simulation/components/simulation-result";
+import { TaskCsvImport } from "@/features/tasks/components/task-csv-import";
+import { TaskModal } from "@/features/tasks/components/task-modal";
+import { TaskTable } from "@/features/tasks/components/task-table";
 
 // Register Chart.js components and plugins
 ChartJS.register(
@@ -39,34 +33,18 @@ ChartJS.register(
 
 const ITERATION_AMOUNT = 20000;
 
-Modal.setAppElement("body");
-
-const modalStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    width: "490px",
-    marginRight: "-30%",
-    transform: "translate(-50%, -50%)",
-  },
-};
-
 export default function HomePage() {
-  // -------------------------------------------------------------------
-  //  Effect Atoms: get and set tasks (persisted in localStorage)
-  // -------------------------------------------------------------------
   const tasks = useTasks();
   const setTasks = useSetTasks();
 
+  // init at start with one task
   useEffect(() => {
     setTasks([
       {
         name: "Test",
         distribution: "uniform",
-        min: 0,
-        max: 0,
+        min: 1,
+        max: 4,
       },
     ]);
   }, [setTasks]);
@@ -74,8 +52,8 @@ export default function HomePage() {
   // -------------------------------------------------------------------
   //  Local state for editing tasks
   // -------------------------------------------------------------------
-  const [taskEdited, setTaskEdited] = useState<Task | null>(null);
   const [modalIsOpen, setIsOpen] = useState(false);
+  const [editingTaskIndex, setEditingTaskIndex] = useState<number | null>(null);
 
   // -------------------------------------------------------------------
   //  Local state for simulation results + confidence slider
@@ -103,12 +81,8 @@ export default function HomePage() {
     setTasks(updated);
   }
 
-  function handleEditTask(task: Task) {
-    openModal(task);
-  }
-
-  function handleCancelEdit() {
-    closeModal();
+  function handleEditTask(_: Task, index: number) {
+    openModal(index);
   }
 
   // -------------------------------------------------------------------
@@ -120,42 +94,32 @@ export default function HomePage() {
     setSimulationData(results);
   }
 
-  const handleUploadData = (data: UploadDataItem[]) => {
-    setTasks(
-      data.map((item) => {
-        return {
-          ...item,
-          distribution: "uniform",
-        };
-      }),
-    );
-  };
-
   const clearAllTasks = () => {
     setTasks([]);
     setSimulationData([]);
   };
 
-  function openModal(task?: Task) {
-    if (task) setTaskEdited(task);
+  function openModal(taskIndex?: number) {
+    if (typeof taskIndex === "number") {
+      setEditingTaskIndex(taskIndex);
+    } else {
+      setEditingTaskIndex(null);
+    }
     setIsOpen(true);
   }
 
   function closeModal() {
     setIsOpen(false);
-    setTaskEdited(null);
+    setEditingTaskIndex(null);
   }
 
-  // -------------------------------------------------------------------
-  //  Render the entire UI
-  // -------------------------------------------------------------------
   return (
     <div className="p-8 space-y-6">
       <h1 className="text-2xl font-bold text-center">
         Monte Carlo Task Estimation
       </h1>
       <div className="flex flex-row gap-4 justify-center">
-        <UploadForm onData={handleUploadData} />
+        <TaskCsvImport />
         <Button disabled={tasks.length === 0} onClick={clearAllTasks}>
           Clear All Tasks
         </Button>
@@ -168,20 +132,15 @@ export default function HomePage() {
       )}
 
       <div className="flex flex-row gap-4 justify-around">
-        <Modal
+        <TaskModal
           isOpen={modalIsOpen}
-          style={modalStyles}
-          onRequestClose={closeModal}
-          contentLabel="Add/Edit Task"
-        >
-          <TaskForm
-            mode={taskEdited ? "edit" : "create"}
-            initialTask={taskEdited || undefined}
-            taskIndex={taskEdited ? tasks.indexOf(taskEdited) : undefined}
-            onSubmit={handleSubmitTask}
-            onCancel={handleCancelEdit}
-          />
-        </Modal>
+          initialTask={
+            editingTaskIndex !== null ? tasks[editingTaskIndex] : undefined
+          }
+          taskIndex={editingTaskIndex ?? undefined}
+          onSubmit={handleSubmitTask}
+          onClose={closeModal}
+        />
       </div>
 
       {simulationData.length > 0 && (
@@ -198,6 +157,10 @@ export default function HomePage() {
           />
         </>
       )}
+
+      <div className="flex justify-center">
+        <Button onClick={() => openModal()}>Add Task</Button>
+      </div>
     </div>
   );
 }

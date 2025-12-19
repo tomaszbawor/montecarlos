@@ -1,7 +1,7 @@
 /// app/layout.tsx
 import "./globals.css";
+import { RegistryProvider } from "@effect-atom/atom-react/RegistryContext";
 import type { Metadata } from "next";
-import { AtomProvider } from "@/app/lib/atom-provider";
 
 export const metadata: Metadata = {
   title: "Monte Carlo App",
@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AtomProvider>{children}</AtomProvider>
+        <RegistryProvider>{children}</RegistryProvider>
       </body>
     </html>
   );
