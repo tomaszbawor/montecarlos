@@ -2,6 +2,7 @@
 import "./globals.css";
 import { RegistryProvider } from "@effect-atom/atom-react/RegistryContext";
 import type { Metadata } from "next";
+import { AppShell } from "@/app/app-shell";
 
 export const metadata: Metadata = {
   title: "Monte Carlo App",
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <RegistryProvider>{children}</RegistryProvider>
+        <RegistryProvider>
+          <AppShell>{children}</AppShell>
+        </RegistryProvider>
       </body>
     </html>
   );
