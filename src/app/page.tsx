@@ -1,6 +1,5 @@
 "use client";
 
-// --- Chart.js + annotation plugin ---
 import {
   BarElement,
   CategoryScale,
@@ -13,16 +12,12 @@ import {
 import annotationPlugin from "chartjs-plugin-annotation";
 import { useEffect, useState } from "react";
 import Modal from "react-modal";
-// --- Effect Atom Tasks Hooks ---
 import { type Task, useSetTasks, useTasks } from "@/app/hooks/useTasks";
 
-// --- Monte Carlo logic ---
 import { runMonteCarlo } from "@/app/lib/monte-carlo";
 import { SimulationResult } from "@/components/simulation-result";
-// --- UI Components for tasks ---
 import { TaskForm } from "@/components/task-form";
 import { TaskTable } from "@/components/task-table";
-// --- shadcn/ui components ---
 import { Button } from "@/components/ui/button";
 import { type UploadDataItem, UploadForm } from "@/components/upload-form";
 
@@ -54,19 +49,17 @@ const modalStyles = {
 };
 
 export default function HomePage() {
-  // -------------------------------------------------------------------
-  //  Effect Atoms: get and set tasks (persisted in localStorage)
-  // -------------------------------------------------------------------
   const tasks = useTasks();
   const setTasks = useSetTasks();
 
+  // init at start with one task
   useEffect(() => {
     setTasks([
       {
         name: "Test",
         distribution: "uniform",
-        min: 0,
-        max: 0,
+        min: 1,
+        max: 4,
       },
     ]);
   }, [setTasks]);
@@ -146,9 +139,6 @@ export default function HomePage() {
     setTaskEdited(null);
   }
 
-  // -------------------------------------------------------------------
-  //  Render the entire UI
-  // -------------------------------------------------------------------
   return (
     <div className="p-8 space-y-6">
       <h1 className="text-2xl font-bold text-center">
@@ -198,6 +188,10 @@ export default function HomePage() {
           />
         </>
       )}
+
+      <div className="flex justify-center">
+        <Button onClick={() => openModal()}>Add Task</Button>
+      </div>
     </div>
   );
 }
