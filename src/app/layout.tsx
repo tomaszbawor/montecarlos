@@ -6,7 +6,7 @@ import { AppShell } from "@/app/app-shell";
 
 export const metadata: Metadata = {
   title: "Monte Carlo App",
-  description: "State managed with Effect atoms",
+  description: "",
 };
 
 export default function RootLayout({

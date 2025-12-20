@@ -4,8 +4,8 @@ export const WorkforceSchema = Schema.Struct({
   developerIdentifier: Schema.String,
   sickLeaveMinWeeks: Schema.NonNegativeInt,
   sickLeaveMaxWeeks: Schema.NonNegativeInt,
-  engagementMinPercentage: Schema.Number.pipe(Schema.between(0.01, 0.99)),
-  engagementMaxPercentage: Schema.Number.pipe(Schema.between(0.01, 0.99)),
+  engagementMinPercentage: Schema.Number.pipe(Schema.between(0.0, 0.99)),
+  engagementMaxPercentage: Schema.Number.pipe(Schema.between(0.01, 1.0)),
   vacationDays: Schema.NonNegativeInt,
 });
 

@@ -248,18 +248,18 @@ function normalizeUniformParams(
 
 function normalizeBetaPertParams(
   values: Record<string, number | undefined>,
-  defaults: { min: number; max: number; mode: number; lambda?: number },
+  defaults: { min: number; max: number; mean: number; lambda?: number },
 ) {
   const min = getNumber(values, defaults.min, "min");
   const max = getNumber(values, defaults.max, "max");
   const a = Math.min(min, max);
   const b = Math.max(min, max);
-  const mode = clamp(getNumber(values, defaults.mode, "mode"), a, b);
+  const mean = clamp(getNumber(values, defaults.mean, "mode"), a, b);
   const lambda = Math.max(
     0.1,
     getNumber(values, defaults.lambda ?? 4, "lambda") || 4,
   );
-  return { min, max, mode, lambda };
+  return { min, max, mean, lambda };
 }
 
 function getNumber(

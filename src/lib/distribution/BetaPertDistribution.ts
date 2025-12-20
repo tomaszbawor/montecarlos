@@ -1,10 +1,11 @@
+import type { Task } from "@/domain/Task";
 import type {
   Distribution,
   DistributionParameters,
 } from "@/lib/distribution/Distribution";
 
 export interface BetaPertParams extends DistributionParameters {
-  mode: number;
+  mean: number;
   /**
    * Controls how strongly the distribution is pulled towards `mode`.
    * Common default: 4.
@@ -13,6 +14,17 @@ export interface BetaPertParams extends DistributionParameters {
 }
 
 export class BetaPertDistribution implements Distribution<BetaPertParams> {
+  paramsFromTask(task: Task): BetaPertParams {
+    const { minEstimate: min, maxEstimate: max } = task;
+
+    const mean = task.meanEstimate ?? (min + max) / 2;
+
+    return {
+      min,
+      max,
+      mean,
+    };
+  }
   calculateDistribution(params: BetaPertParams): number {
     const lambda = params.lambda ?? 4;
     if (!(lambda > 0)) return NaN;
@@ -21,7 +33,7 @@ export class BetaPertDistribution implements Distribution<BetaPertParams> {
     const max = Math.max(params.min, params.max);
     if (min === max) return min;
 
-    const mode = clamp(params.mode, min, max);
+    const mode = clamp(params.mean, min, max);
 
     const alpha = 1 + (lambda * (mode - min)) / (max - min);
     const beta = 1 + (lambda * (max - mode)) / (max - min);

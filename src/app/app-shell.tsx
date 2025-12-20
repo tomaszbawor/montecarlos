@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart3, Home, Menu } from "lucide-react";
+import { BarChart3, FileIcon, Home, Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
@@ -19,6 +19,7 @@ type NavItem = {
 const NAV_ITEMS: readonly NavItem[] = [
   { href: "/", label: "Monte Carlo", icon: Home },
   { href: "/distributions", label: "Distributions", icon: BarChart3 },
+  { href: "/csv-import", label: "Import Tasks from Csv File", icon: FileIcon },
 ] as const;
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {

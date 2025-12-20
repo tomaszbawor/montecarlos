@@ -66,7 +66,7 @@ export const DISTRIBUTIONS: readonly AnyDistributionDefinition[] = [
     id: "beta-pert",
     name: "Beta-PERT",
     description: "PERT with a Beta distribution shape (min, mode, max).",
-    defaultParams: { min: 0, mode: 6, max: 10, lambda: 4 },
+    defaultParams: { min: 0, mean: 6, max: 10, lambda: 4 },
     controls: [
       { kind: "number", key: "min", label: "Min", step: 0.1 },
       { kind: "number", key: "mode", label: "Mode", step: 0.1 },
