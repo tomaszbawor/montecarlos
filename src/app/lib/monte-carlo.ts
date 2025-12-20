@@ -1,17 +1,19 @@
 // lib/monte-carlo.ts
 
 import type { Task } from "@/domain/Task";
+import { BetaPertDistribution } from "@/lib/distribution/BetaPertDistribution";
+import type { Distribution } from "@/lib/distribution/Distribution";
 
 /**
  * Generate a random value from the specified distribution.
- *
- * For demonstration, we implement:
- *   - uniform: random between min and max
- *   - triangular: simple triangular approximation
  */
-function randomValue(task: Task): number {
-  const { minEstimate: min, maxEstimate: max } = task;
-  return Math.random() * (max - min) + min;
+function randomValue(task: Task, distribution?: Distribution): number {
+  if (!distribution) {
+    distribution = new BetaPertDistribution();
+  }
+
+  const params = distribution.paramsFromTask(task);
+  return distribution.calculateDistribution(params);
 }
 
 /**

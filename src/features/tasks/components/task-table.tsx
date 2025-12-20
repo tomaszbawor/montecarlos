@@ -25,6 +25,7 @@ export function TaskTable({ tasks, onEdit, onRemove }: TaskTableProps) {
           <TableHead>Name</TableHead>
           <TableHead>Min</TableHead>
           <TableHead>Max</TableHead>
+          <TableHead>Mean</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -34,6 +35,7 @@ export function TaskTable({ tasks, onEdit, onRemove }: TaskTableProps) {
             <TableCell>{task.title}</TableCell>
             <TableCell>{task.minEstimate}</TableCell>
             <TableCell>{task.maxEstimate}</TableCell>
+            <TableCell>{task.meanEstimate ?? "--"}</TableCell>
             <TableCell>
               <div className="flex gap-2">
                 <Button

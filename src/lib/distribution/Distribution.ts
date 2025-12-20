@@ -21,5 +21,8 @@ export interface Distribution<
 export interface EffectfullDistribution<
   P extends DistributionParameters = DistributionParameters,
 > {
-  calculate: (parameters: P) => Effect.Effect<number, never, Random.Random>;
+  calculate: (
+    parameters: P,
+  ) => Effect.Effect<number, DistributionError, Random.Random>;
+  paramsFromTaks: (task: Task) => P;
 }

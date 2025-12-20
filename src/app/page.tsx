@@ -32,7 +32,7 @@ ChartJS.register(
   annotationPlugin,
 );
 
-const ITERATION_AMOUNT = 20000;
+const ITERATION_AMOUNT = 100_000;
 
 export default function HomePage() {
   const tasks = useTasks();

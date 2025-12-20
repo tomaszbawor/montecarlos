@@ -29,6 +29,7 @@ export function TaskForm({
   const [name, setName] = useState("");
   const [min, setMin] = useState("1");
   const [max, setMax] = useState("3");
+  const [mean, setMean] = useState("2");
 
   // Pre-fill if editing
   useEffect(() => {
@@ -36,6 +37,7 @@ export function TaskForm({
       setName(initialTask.title);
       setMin(initialTask.minEstimate.toString());
       setMax(initialTask.maxEstimate.toString());
+      setMean(initialTask.meanEstimate?.toString() ?? "2");
     }
   }, [initialTask]);
 
@@ -47,6 +49,7 @@ export function TaskForm({
       title: name,
       minEstimate: Number.parseFloat(min),
       maxEstimate: Number.parseFloat(max),
+      meanEstimate: Number.parseFloat(mean),
     };
     onSubmit(newTask, taskIndex);
     // Optionally reset if in create mode
@@ -54,6 +57,7 @@ export function TaskForm({
       setName("");
       setMin("1");
       setMax("3");
+      setMean("2");
     }
   };
 
@@ -87,6 +91,16 @@ export function TaskForm({
           type="number"
           value={max}
           onChange={(e) => setMax(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="meanTime">Mean Time</Label>
+        <Input
+          id="meanTime"
+          type="number"
+          value={mean}
+          onChange={(e) => setMean(e.target.value)}
         />
       </div>
 

@@ -30,6 +30,15 @@ export class UniformDistribution
 export class EffectfullUniformDistribution
   implements EffectfullDistribution<UniformDistributionParams>
 {
+  paramsFromTaks = (task: Task): UniformDistributionParams => {
+    const { minEstimate: min, maxEstimate: max } = task;
+
+    return {
+      min,
+      max,
+    };
+  };
+
   calculate = (params: UniformDistributionParams) =>
     Effect.gen(function* () {
       const min = Math.min(params.min, params.max);

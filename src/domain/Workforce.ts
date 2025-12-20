@@ -10,3 +10,19 @@ export const WorkforceSchema = Schema.Struct({
 });
 
 export interface Workforce extends Schema.Schema.Type<typeof WorkforceSchema> {}
+
+export const ProjectTimelineSchema = Schema.Struct({
+  startDate: Schema.Date,
+  endDate: Schema.Date,
+});
+
+export interface ProjectTimeline
+  extends Schema.Schema.Type<typeof ProjectTimelineSchema> {}
+
+export const calculateWorkforceEgagement = (_wf: Workforce): number => {
+  // TODO: Implement
+  // sample how many sick days
+  // sample vacationDays
+
+  return 1;
+};
