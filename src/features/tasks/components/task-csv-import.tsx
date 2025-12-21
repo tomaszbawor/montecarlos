@@ -1,11 +1,11 @@
 "use client";
 
-import { useSetTasks } from "@/app/state/tasks-atom";
 import type { Task } from "@/domain/Task";
 import {
   type UploadDataItem,
   UploadForm,
 } from "@/features/tasks/components/upload-form";
+import { useSetTasks } from "@/state/tasks-atom";
 
 interface TaskCsvImportProps {
   onImport?: (tasks: Task[]) => void;

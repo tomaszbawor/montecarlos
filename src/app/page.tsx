@@ -12,13 +12,13 @@ import {
 import annotationPlugin from "chartjs-plugin-annotation";
 import { useEffect, useState } from "react";
 import { v4 } from "uuid";
-import { useSetTasks, useTasks } from "@/app/state/tasks-atom";
 import { Button } from "@/components/ui/button";
 import type { Task } from "@/domain/Task";
 import { SimulationResult } from "@/features/simulation/components/simulation-result";
 import { TaskModal } from "@/features/tasks/components/task-modal";
 import { TaskTable } from "@/features/tasks/components/task-table";
 import { runMonteCarlo } from "@/lib/monte-carlo";
+import { useSetTasks, useTasks } from "@/state/tasks-atom";
 
 // Register Chart.js components and plugins
 ChartJS.register(
