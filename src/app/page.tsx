@@ -17,7 +17,6 @@ import { useSetTasks, useTasks } from "@/app/state/tasks-atom";
 import { Button } from "@/components/ui/button";
 import type { Task } from "@/domain/Task";
 import { SimulationResult } from "@/features/simulation/components/simulation-result";
-import { TaskCsvImport } from "@/features/tasks/components/task-csv-import";
 import { TaskModal } from "@/features/tasks/components/task-modal";
 import { TaskTable } from "@/features/tasks/components/task-table";
 
@@ -122,7 +121,6 @@ export default function HomePage() {
         Monte Carlo Task Estimation
       </h1>
       <div className="flex flex-row gap-4 justify-center">
-        <TaskCsvImport />
         <Button disabled={tasks.length === 0} onClick={clearAllTasks}>
           Clear All Tasks
         </Button>
