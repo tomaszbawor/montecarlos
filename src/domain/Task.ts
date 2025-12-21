@@ -11,6 +11,5 @@ export const TaskSchema = Schema.Struct({
 export interface Task extends Schema.Schema.Type<typeof TaskSchema> {}
 
 export const calculateTaskEffort = (task: Task, dist: Distribution) => {
-  const res = dist.calculateDistribution(dist.paramsFromTask(task));
-  return res;
+  return dist.calculateDistribution(dist.paramsFromTask(task));
 };
