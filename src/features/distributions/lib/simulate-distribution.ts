@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 import { buildHistogram } from "@/features/distributions/lib/histogram";
+import type { DistributionParameters } from "@/lib/distribution/Distribution";
 
 export type SimulationResult = {
   histogram: ReturnType<typeof buildHistogram>["histogram"];
@@ -8,7 +9,9 @@ export type SimulationResult = {
   bins: number;
 };
 
-export function simulateDistribution<P>(options: {
+export function simulateDistribution<
+  P extends DistributionParameters,
+>(options: {
   sample: (params: P) => number;
   params: P;
   sampleCount: number;
