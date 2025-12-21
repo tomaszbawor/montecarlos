@@ -56,12 +56,12 @@ export default function WorkforcePage() {
     setWorkforce(workforce.filter((wf) => wf.id !== id));
   };
 
-  const onSave = (wf: Workforce) => {
-    console.log("Saving workforce", wf);
+  const onSave = (newWorker: Workforce) => {
+    console.log("Saving workforce", newWorker);
 
-    const workers = workforce.filter((w) => w.id !== wf.id);
+    const workers = workforce.filter((worker) => worker.id !== newWorker.id);
 
-    setWorkforce([...workers, wf]);
+    setWorkforce([...workers, newWorker]);
     setEditedWorker(undefined);
     setIsDialogOpen(false);
   };
@@ -69,15 +69,6 @@ export default function WorkforcePage() {
   return (
     <div>
       <div className="text-xl text-center">Workforce Management</div>
-      <pre>{JSON.stringify(workforce, null, 2)}</pre>
-      <Button
-        variant="outline"
-        onClick={() => {
-          setIsDialogOpen(!isDialogOpen);
-        }}
-      >
-        Create New Worker
-      </Button>
 
       {isDialogOpen && (
         <WorkforceDialog
@@ -126,6 +117,16 @@ export default function WorkforcePage() {
           ))}
         </TableBody>
       </Table>
+
+      <div className="flex justify-center">
+        <Button
+          onClick={() => {
+            setIsDialogOpen(!isDialogOpen);
+          }}
+        >
+          Create New Worker
+        </Button>
+      </div>
     </div>
   );
 }

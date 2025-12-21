@@ -10,8 +10,7 @@ import {
   Tooltip,
 } from "chart.js";
 import annotationPlugin from "chartjs-plugin-annotation";
-import { useEffect, useState } from "react";
-import { v4 } from "uuid";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { Task } from "@/domain/Task";
 import { SimulationResult } from "@/features/simulation/components/simulation-result";
@@ -37,20 +36,6 @@ export default function HomePage() {
   const tasks = useTasks();
   const setTasks = useSetTasks();
 
-  // init at start with one task only if no tasks are present (e.g., first visit)
-  useEffect(() => {
-    if (tasks.length === 0) {
-      setTasks([
-        {
-          id: v4(),
-          title: "Test",
-          minEstimate: 1,
-          maxEstimate: 4,
-        },
-      ]);
-    }
-  }, [setTasks, tasks.length]);
-
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentEditedTask, setCurrentEditedTask] = useState<Task | undefined>(
     undefined,
@@ -58,11 +43,9 @@ export default function HomePage() {
 
   const onOpenChange = (isDialogOpen: boolean) => {
     if (!isDialogOpen) {
-      // clean on closing
       setCurrentEditedTask(undefined);
     }
 
-    // clearing if closing
     setIsDialogOpen(isDialogOpen);
   };
 
