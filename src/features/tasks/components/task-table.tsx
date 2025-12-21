@@ -13,8 +13,8 @@ import type { Task } from "@/domain/Task";
 
 interface TaskTableProps {
   tasks: readonly Task[];
-  onEdit: (task: Task, index: number) => void;
-  onRemove: (index: number) => void;
+  onEdit: (taskId: Task["id"]) => void;
+  onRemove: (taskId: Task["id"]) => void;
 }
 
 export function TaskTable({ tasks, onEdit, onRemove }: TaskTableProps) {
@@ -30,7 +30,7 @@ export function TaskTable({ tasks, onEdit, onRemove }: TaskTableProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {tasks.map((task, index) => (
+        {tasks.map((task) => (
           <TableRow key={task.id}>
             <TableCell>{task.title}</TableCell>
             <TableCell>{task.minEstimate}</TableCell>
@@ -41,14 +41,14 @@ export function TaskTable({ tasks, onEdit, onRemove }: TaskTableProps) {
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => onEdit(task, index)}
+                  onClick={() => onEdit(task.id)}
                 >
                   Edit
                 </Button>
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={() => onRemove(index)}
+                  onClick={() => onRemove(task.id)}
                 >
                   Remove
                 </Button>

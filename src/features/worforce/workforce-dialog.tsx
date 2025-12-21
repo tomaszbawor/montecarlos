@@ -28,7 +28,6 @@ export const WorkforceDialog: React.FC<WorkforceDialogProps> = ({
   onOpenChange,
   onSave,
 }) => {
-  //
   const [name, setName] = useState(
     workforce?.developerIdentifier ?? "John Doe",
   );

@@ -15,7 +15,7 @@ import { v4 } from "uuid";
 import { Button } from "@/components/ui/button";
 import type { Task } from "@/domain/Task";
 import { SimulationResult } from "@/features/simulation/components/simulation-result";
-import { TaskModal } from "@/features/tasks/components/task-modal";
+import { TaskDialog } from "@/features/tasks/components/task-dialog";
 import { TaskTable } from "@/features/tasks/components/task-table";
 import { runMonteCarlo } from "@/lib/monte-carlo";
 import { useSetTasks, useTasks } from "@/state/tasks-atom";
@@ -51,41 +51,46 @@ export default function HomePage() {
     }
   }, [setTasks, tasks.length]);
 
-  // -------------------------------------------------------------------
-  //  Local state for editing tasks
-  // -------------------------------------------------------------------
-  const [modalIsOpen, setIsOpen] = useState(false);
-  const [editingTaskIndex, setEditingTaskIndex] = useState<number | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [currentEditedTask, setCurrentEditedTask] = useState<Task | undefined>(
+    undefined,
+  );
+
+  const onOpenChange = (isDialogOpen: boolean) => {
+    if (!isDialogOpen) {
+      // clean on closing
+      setCurrentEditedTask(undefined);
+    }
+
+    // clearing if closing
+    setIsDialogOpen(isDialogOpen);
+  };
+
+  const onTaskSave = (newTask: Task) => {
+    const tasksWithoutEdited = tasks.filter((t) => t.id !== newTask.id);
+    setTasks([...tasksWithoutEdited, newTask]);
+
+    setIsDialogOpen(false);
+    setCurrentEditedTask(undefined);
+  };
+
+  const handleEditTask = (taskId: Task["id"]) => {
+    const taskToEdit = tasks.find((t) => t.id === taskId);
+
+    setCurrentEditedTask(taskToEdit);
+    setIsDialogOpen(true);
+  };
+
+  const handleRemoveTask = (taskId: Task["id"]) => {
+    const newTaskList = tasks.filter((task) => task.id !== taskId);
+    setTasks(newTaskList);
+    console.log("Removing task...");
+  };
 
   // -------------------------------------------------------------------
   //  Local state for simulation results + confidence slider
   // -------------------------------------------------------------------
   const [simulationData, setSimulationData] = useState<number[]>([]);
-
-  // -------------------------------------------------------------------
-  //  Handlers for adding / editing / removing tasks
-  // -------------------------------------------------------------------
-  function handleSubmitTask(newTask: Task, index?: number) {
-    if (typeof index === "number") {
-      // Editing an existing task
-      const updated = [...tasks];
-      updated[index] = newTask;
-      setTasks(updated);
-      closeModal();
-    } else {
-      // Adding a new task
-      setTasks([...tasks, newTask]);
-    }
-  }
-
-  function handleRemoveTask(index: number) {
-    const updated = tasks.filter((_, i) => i !== index);
-    setTasks(updated);
-  }
-
-  function handleEditTask(_: Task, index: number) {
-    openModal(index);
-  }
 
   // -------------------------------------------------------------------
   //  Monte Carlo Simulation
@@ -100,20 +105,6 @@ export default function HomePage() {
     setTasks([]);
     setSimulationData([]);
   };
-
-  function openModal(taskIndex?: number) {
-    if (typeof taskIndex === "number") {
-      setEditingTaskIndex(taskIndex);
-    } else {
-      setEditingTaskIndex(null);
-    }
-    setIsOpen(true);
-  }
-
-  function closeModal() {
-    setIsOpen(false);
-    setEditingTaskIndex(null);
-  }
 
   return (
     <div className="p-8 space-y-6">
@@ -133,15 +124,14 @@ export default function HomePage() {
       )}
 
       <div className="flex flex-row gap-4 justify-around">
-        <TaskModal
-          isOpen={modalIsOpen}
-          initialTask={
-            editingTaskIndex !== null ? tasks[editingTaskIndex] : undefined
-          }
-          taskIndex={editingTaskIndex ?? undefined}
-          onSubmit={handleSubmitTask}
-          onClose={closeModal}
-        />
+        {isDialogOpen && (
+          <TaskDialog
+            task={currentEditedTask}
+            isDialogOpen={isDialogOpen}
+            onSave={onTaskSave}
+            onOpenChange={onOpenChange}
+          />
+        )}
       </div>
 
       {simulationData.length > 0 && (
@@ -160,7 +150,7 @@ export default function HomePage() {
       )}
 
       <div className="flex justify-center">
-        <Button onClick={() => openModal()}>Add Task</Button>
+        <Button onClick={() => setIsDialogOpen(true)}>Add Task</Button>
       </div>
     </div>
   );

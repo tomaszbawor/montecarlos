@@ -3,8 +3,8 @@ import { Schema } from "effect";
 export const WorkforceSchema = Schema.Struct({
   id: Schema.UUID,
   developerIdentifier: Schema.String,
-  //sickLeaveMinWeeks: Schema.NonNegativeInt,
-  // sickLeaveMaxWeeks: Schema.NonNegativeInt,
+  sickLeaveMinWeeks: Schema.optional(Schema.NonNegativeInt),
+  sickLeaveMaxWeeks: Schema.optional(Schema.NonNegativeInt),
   engagementMinPercentage: Schema.Number.pipe(Schema.between(0.0, 0.99)),
   engagementMaxPercentage: Schema.Number.pipe(Schema.between(0.01, 1.0)),
   vacationDays: Schema.NonNegativeInt,
