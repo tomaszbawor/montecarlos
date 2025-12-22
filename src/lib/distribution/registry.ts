@@ -1,9 +1,14 @@
+import { Effect, Random } from "effect";
 import type { BetaPertParams } from "@/lib/distribution/BetaPertDistribution";
 import { BetaPertDistribution } from "@/lib/distribution/BetaPertDistribution";
-import type { UniformDistributionParams } from "@/lib/distribution/UniformDistribution";
-import { UniformDistribution } from "@/lib/distribution/UniformDistribution";
+import {
+  UniformDistribution,
+  type UniformDistributionParams,
+} from "@/lib/distribution/UniformDistribution";
 
 export type DistributionId = "uniform" | "beta-pert";
+
+const RandomService = Random.make("seed");
 
 export type DistributionParameterControl =
   | {
@@ -56,7 +61,14 @@ export const DISTRIBUTIONS: readonly AnyDistributionDefinition[] = [
       { kind: "number", key: "min", label: "Min", step: 0.1 },
       { kind: "number", key: "max", label: "Max", step: 0.1 },
     ],
-    sample: (params) => new UniformDistribution().calculateDistribution(params),
+    sample: (params) => {
+      const distribution = new UniformDistribution();
+      const getValueEffect = distribution
+        .calculate(params)
+        .pipe(Effect.provideService(Random.Random, RandomService));
+
+      return Effect.runSync(getValueEffect);
+    },
     domain: (params) => ({
       min: Math.min(params.min, params.max),
       max: Math.max(params.min, params.max),
