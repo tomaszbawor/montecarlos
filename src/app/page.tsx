@@ -1,15 +1,5 @@
 "use client";
 
-import {
-  BarElement,
-  CategoryScale,
-  Chart as ChartJS,
-  Legend,
-  LinearScale,
-  Title,
-  Tooltip,
-} from "chart.js";
-import annotationPlugin from "chartjs-plugin-annotation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { Task } from "@/domain/Task";
@@ -18,17 +8,6 @@ import { TaskDialog } from "@/features/tasks/components/task-dialog";
 import { TaskTable } from "@/features/tasks/components/task-table";
 import { runMonteCarlo } from "@/lib/monte-carlo";
 import { useSetTasks, useTasks } from "@/state/tasks-atom";
-
-// Register Chart.js components and plugins
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  annotationPlugin,
-);
 
 const ITERATION_AMOUNT = 100_000;
 

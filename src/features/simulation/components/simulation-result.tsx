@@ -1,11 +1,30 @@
-import type { ChartOptions } from "chart.js";
 import { useMemo, useState } from "react";
-import { Bar } from "react-chartjs-2";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ReferenceLine,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 import { Slider } from "@/components/ui/slider";
 
 export interface SimulationResultProps {
   simulationData: number[];
 }
+
+const chartConfig = {
+  count: {
+    label: "Frequency",
+    color: "hsl(var(--chart-1))",
+  },
+} satisfies ChartConfig;
 
 export function SimulationResult({ simulationData }: SimulationResultProps) {
   const [confidence, setConfidence] = useState<number>(95);
@@ -40,59 +59,19 @@ export function SimulationResult({ simulationData }: SimulationResultProps) {
   // -------------------------------------------------------------------
   //  Creating a histogram from simulation data
   // -------------------------------------------------------------------
-  // -------------------------------------------------------------------
-  //  Chart.js data + annotation plugin config
-  // -------------------------------------------------------------------
-  const chartData = {
-    labels,
-    datasets: [
-      {
-        label: "Frequency",
-        data: counts,
-        backgroundColor: "rgba(53, 162, 235, 0.5)",
-      },
-    ],
-  };
+  const chartData = useMemo(
+    () =>
+      labels.map((label, index) => ({
+        label,
+        count: counts[index] ?? 0,
+      })),
+    [labels, counts],
+  );
 
-  const chartOptions: ChartOptions<"bar"> = {
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      title: {
-        display: true,
-        text: "Histogram of Total Task Times",
-      },
-      annotation: {
-        annotations:
-          percentileBinIndex !== null && simulationData.length > 0
-            ? {
-                percentileLine: {
-                  type: "line",
-                  xMin: percentileBinIndex + 0.5, // shift line to boundary between bins
-                  xMax: percentileBinIndex + 0.5,
-                  borderColor: "red",
-                  borderWidth: 2,
-                  label: {
-                    display: true,
-                    position: "start",
-                    content: `${confidence}% ≈ ${percentileValue.toFixed(1)}`,
-                    color: "red",
-                    backgroundColor: "white",
-                  },
-                },
-              }
-            : {},
-      },
-    },
-    scales: {
-      x: {
-        title: { display: true, text: "Total Time" },
-      },
-      y: {
-        title: { display: true, text: "Frequency" },
-      },
-    },
-  };
+  const percentileLabel =
+    percentileBinIndex !== null ? labels[percentileBinIndex] : null;
+
+  const tickInterval = Math.max(0, Math.ceil(chartData.length / 10) - 1);
 
   return (
     <div className="mt-8 space-y-6">
@@ -113,8 +92,43 @@ export function SimulationResult({ simulationData }: SimulationResultProps) {
       </div>
 
       {/* Histogram chart */}
-      <div className="max-w-3xl">
-        <Bar data={chartData} options={chartOptions} />
+      <div className="max-w-3xl space-y-2">
+        <p className="text-sm font-medium text-center">
+          Histogram of Total Task Times
+        </p>
+        <ChartContainer config={chartConfig}>
+          <BarChart data={chartData} margin={{ left: 8, right: 12, top: 8 }}>
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="label"
+              tickLine={false}
+              axisLine={false}
+              interval={tickInterval}
+              minTickGap={12}
+            />
+            <YAxis tickLine={false} axisLine={false} allowDecimals={false} />
+            <ChartTooltip content={<ChartTooltipContent />} />
+            <Bar
+              dataKey="count"
+              fill="var(--color-count)"
+              radius={[4, 4, 0, 0]}
+              isAnimationActive={false}
+            />
+            {percentileLabel && simulationData.length > 0 && (
+              <ReferenceLine
+                x={percentileLabel}
+                stroke="hsl(var(--destructive))"
+                strokeWidth={2}
+                label={{
+                  value: `${confidence}% ≈ ${percentileValue.toFixed(1)}`,
+                  position: "insideTop",
+                  fill: "hsl(var(--destructive))",
+                  fontSize: 12,
+                }}
+              />
+            )}
+          </BarChart>
+        </ChartContainer>
       </div>
     </div>
   );
