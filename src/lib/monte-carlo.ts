@@ -4,8 +4,8 @@ import { Effect, Random } from "effect";
 import type { Task } from "@/domain/Task";
 import { BetaPertDistribution } from "@/lib/distribution/BetaPertDistribution";
 import type {
+  Distribution,
   DistributionParameters,
-  EffectfullDistribution,
 } from "@/lib/distribution/Distribution";
 import { RandomService } from "@/state/atom-runtime";
 
@@ -15,11 +15,11 @@ import { RandomService } from "@/state/atom-runtime";
 function randomValue(task: Task): number;
 function randomValue<P extends DistributionParameters>(
   task: Task,
-  distribution: EffectfullDistribution<P>,
+  distribution: Distribution<P>,
 ): number;
 function randomValue<P extends DistributionParameters>(
   task: Task,
-  distribution?: EffectfullDistribution<P>,
+  distribution?: Distribution<P>,
 ): number {
   if (!distribution) {
     const defaultDistribution = new BetaPertDistribution();

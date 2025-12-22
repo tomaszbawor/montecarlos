@@ -1,5 +1,5 @@
 import { Effect, Schema } from "effect";
-import type { EffectfullDistribution } from "@/lib/distribution/Distribution";
+import type { Distribution } from "@/lib/distribution/Distribution";
 export const TaskSchema = Schema.Struct({
   id: Schema.UUID,
   title: Schema.String,
@@ -10,7 +10,7 @@ export const TaskSchema = Schema.Struct({
 
 export interface Task extends Schema.Schema.Type<typeof TaskSchema> {}
 
-export const calculateTaskEffort = (task: Task, dist: EffectfullDistribution) =>
+export const calculateTaskEffort = (task: Task, dist: Distribution) =>
   Effect.gen(function* () {
     return yield* dist.calculate(dist.paramsFromTask(task));
   });

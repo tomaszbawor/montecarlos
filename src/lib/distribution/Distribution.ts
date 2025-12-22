@@ -11,7 +11,7 @@ export class DistributionError extends Data.TaggedError("DistributionError")<{
   message: string;
 }> {}
 
-export interface EffectfullDistribution<
+export interface Distribution<
   P extends DistributionParameters = DistributionParameters,
 > {
   calculate: (

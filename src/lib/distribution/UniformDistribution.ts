@@ -1,14 +1,14 @@
 import { Effect, Random } from "effect";
 import type { Task } from "@/domain/Task";
 import type {
+  Distribution,
   DistributionParameters,
-  EffectfullDistribution,
 } from "@/lib/distribution/Distribution";
 
 export interface UniformDistributionParams extends DistributionParameters {}
 
 export class UniformDistribution
-  implements EffectfullDistribution<UniformDistributionParams>
+  implements Distribution<UniformDistributionParams>
 {
   paramsFromTask = (task: Task): UniformDistributionParams => {
     const { minEstimate: min, maxEstimate: max } = task;

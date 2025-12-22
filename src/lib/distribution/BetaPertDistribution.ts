@@ -2,9 +2,9 @@ import { Effect } from "effect";
 import { Random } from "effect/Random";
 import type { Task } from "@/domain/Task";
 import type {
+  Distribution,
   DistributionError,
   DistributionParameters,
-  EffectfullDistribution,
 } from "@/lib/distribution/Distribution";
 
 export interface BetaPertParams extends DistributionParameters {
@@ -16,9 +16,7 @@ export interface BetaPertParams extends DistributionParameters {
   lambda?: number;
 }
 
-export class BetaPertDistribution
-  implements EffectfullDistribution<BetaPertParams>
-{
+export class BetaPertDistribution implements Distribution<BetaPertParams> {
   calculate = (
     params: BetaPertParams,
   ): Effect.Effect<number, DistributionError, Random> =>
