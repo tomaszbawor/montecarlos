@@ -1,19 +1,6 @@
+import type { Task } from "@/domain/Task";
+import type { Workforce } from "@/domain/Workforce";
 import { normInvMS } from "./norm-inv";
-
-export interface Task {
-  id: string;
-  minEstimateDays: number;
-  maxEstimateDays: number;
-}
-
-export interface Workforce {
-  developerIdentifier: string;
-  sickLeaveMinWeeks: number;
-  sickLeaveMaxWeeks: number;
-  engagementMinPercentage: number; // [0.01-0.99]
-  engagementMaxPercentage: number; // [0.01-0.99]
-  vacationDays: number;
-}
 
 export interface SimulationSettings {
   developers: Workforce[];
@@ -107,10 +94,10 @@ function calculateTaskTimeInHours(
   task: Task,
   standardDeviationParameter: number,
 ): number {
-  const { minEstimateDays, maxEstimateDays } = task;
+  const { minEstimate, maxEstimate } = task;
   const estimateInHours = normInvWithFailsafe(
-    minEstimateDays,
-    maxEstimateDays,
+    minEstimate,
+    maxEstimate,
     standardDeviationParameter,
   );
   return estimateInHours;
@@ -122,8 +109,8 @@ function calculateSickLeaveTimeInDays(
 ): number {
   const { sickLeaveMinWeeks, sickLeaveMaxWeeks } = dev;
   const estimateInDays = normInvWithFailsafeForSickLeave(
-    sickLeaveMinWeeks,
-    sickLeaveMaxWeeks,
+    sickLeaveMinWeeks ?? 0,
+    sickLeaveMaxWeeks ?? 0,
     standardDeviationParameter,
   );
   return estimateInDays;
@@ -234,7 +221,7 @@ export function runMonteCarloSimulationNew(
     }
 
     marketProductivityInPercentage = calculateMarketProductivity(
-      simulationSettings.marketAverageAgileProductivityMaxPercentage,
+      simulationSettings.marketAverageAgileProductivityMinPercentage,
       simulationSettings.marketAverageAgileProductivityMaxPercentage,
       simulationSettings.standardDeviationParameter,
     );

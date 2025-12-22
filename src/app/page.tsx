@@ -1,89 +1,58 @@
 "use client";
 
-import {
-  BarElement,
-  CategoryScale,
-  Chart as ChartJS,
-  Legend,
-  LinearScale,
-  Title,
-  Tooltip,
-} from "chart.js";
-import annotationPlugin from "chartjs-plugin-annotation";
-import { useEffect, useState } from "react";
-import { type Task, useSetTasks, useTasks } from "@/app/hooks/useTasks";
-
-import { runMonteCarlo } from "@/app/lib/monte-carlo";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import type { Task } from "@/domain/Task";
 import { SimulationResult } from "@/features/simulation/components/simulation-result";
-import { TaskCsvImport } from "@/features/tasks/components/task-csv-import";
-import { TaskModal } from "@/features/tasks/components/task-modal";
+import { TaskDialog } from "@/features/tasks/components/task-dialog";
 import { TaskTable } from "@/features/tasks/components/task-table";
+import { runMonteCarlo } from "@/lib/monte-carlo";
+import { useSetTasks, useTasks } from "@/state/tasks-atom";
 
-// Register Chart.js components and plugins
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  annotationPlugin,
-);
-
-const ITERATION_AMOUNT = 20000;
+const ITERATION_AMOUNT = 100_000;
 
 export default function HomePage() {
   const tasks = useTasks();
   const setTasks = useSetTasks();
 
-  // init at start with one task
-  useEffect(() => {
-    setTasks([
-      {
-        name: "Test",
-        distribution: "uniform",
-        min: 1,
-        max: 4,
-      },
-    ]);
-  }, [setTasks]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [currentEditedTask, setCurrentEditedTask] = useState<Task | undefined>(
+    undefined,
+  );
 
-  // -------------------------------------------------------------------
-  //  Local state for editing tasks
-  // -------------------------------------------------------------------
-  const [modalIsOpen, setIsOpen] = useState(false);
-  const [editingTaskIndex, setEditingTaskIndex] = useState<number | null>(null);
+  const onOpenChange = (isDialogOpen: boolean) => {
+    if (!isDialogOpen) {
+      setCurrentEditedTask(undefined);
+    }
+
+    setIsDialogOpen(isDialogOpen);
+  };
+
+  const onTaskSave = (newTask: Task) => {
+    const tasksWithoutEdited = tasks.filter((t) => t.id !== newTask.id);
+    setTasks([...tasksWithoutEdited, newTask]);
+
+    setIsDialogOpen(false);
+    setCurrentEditedTask(undefined);
+  };
+
+  const handleEditTask = (taskId: Task["id"]) => {
+    const taskToEdit = tasks.find((t) => t.id === taskId);
+
+    setCurrentEditedTask(taskToEdit);
+    setIsDialogOpen(true);
+  };
+
+  const handleRemoveTask = (taskId: Task["id"]) => {
+    const newTaskList = tasks.filter((task) => task.id !== taskId);
+    setTasks(newTaskList);
+    console.log("Removing task...");
+  };
 
   // -------------------------------------------------------------------
   //  Local state for simulation results + confidence slider
   // -------------------------------------------------------------------
   const [simulationData, setSimulationData] = useState<number[]>([]);
-
-  // -------------------------------------------------------------------
-  //  Handlers for adding / editing / removing tasks
-  // -------------------------------------------------------------------
-  function handleSubmitTask(newTask: Task, index?: number) {
-    if (typeof index === "number") {
-      // Editing an existing task
-      const updated = [...tasks];
-      updated[index] = newTask;
-      setTasks(updated);
-      closeModal();
-    } else {
-      // Adding a new task
-      setTasks([...tasks, newTask]);
-    }
-  }
-
-  function handleRemoveTask(index: number) {
-    const updated = tasks.filter((_, i) => i !== index);
-    setTasks(updated);
-  }
-
-  function handleEditTask(_: Task, index: number) {
-    openModal(index);
-  }
 
   // -------------------------------------------------------------------
   //  Monte Carlo Simulation
@@ -99,27 +68,12 @@ export default function HomePage() {
     setSimulationData([]);
   };
 
-  function openModal(taskIndex?: number) {
-    if (typeof taskIndex === "number") {
-      setEditingTaskIndex(taskIndex);
-    } else {
-      setEditingTaskIndex(null);
-    }
-    setIsOpen(true);
-  }
-
-  function closeModal() {
-    setIsOpen(false);
-    setEditingTaskIndex(null);
-  }
-
   return (
     <div className="p-8 space-y-6">
       <h1 className="text-2xl font-bold text-center">
         Monte Carlo Task Estimation
       </h1>
       <div className="flex flex-row gap-4 justify-center">
-        <TaskCsvImport />
         <Button disabled={tasks.length === 0} onClick={clearAllTasks}>
           Clear All Tasks
         </Button>
@@ -132,15 +86,14 @@ export default function HomePage() {
       )}
 
       <div className="flex flex-row gap-4 justify-around">
-        <TaskModal
-          isOpen={modalIsOpen}
-          initialTask={
-            editingTaskIndex !== null ? tasks[editingTaskIndex] : undefined
-          }
-          taskIndex={editingTaskIndex ?? undefined}
-          onSubmit={handleSubmitTask}
-          onClose={closeModal}
-        />
+        {isDialogOpen && (
+          <TaskDialog
+            task={currentEditedTask}
+            isDialogOpen={isDialogOpen}
+            onSave={onTaskSave}
+            onOpenChange={onOpenChange}
+          />
+        )}
       </div>
 
       {simulationData.length > 0 && (
@@ -159,7 +112,7 @@ export default function HomePage() {
       )}
 
       <div className="flex justify-center">
-        <Button onClick={() => openModal()}>Add Task</Button>
+        <Button onClick={() => setIsDialogOpen(true)}>Add Task</Button>
       </div>
     </div>
   );

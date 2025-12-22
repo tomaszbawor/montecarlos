@@ -1,6 +1,5 @@
 "use client";
 
-import type { Task } from "@/app/lib/monte-carlo";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -10,11 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { Task } from "@/domain/Task";
 
 interface TaskTableProps {
-  tasks: Task[];
-  onEdit: (task: Task, index: number) => void;
-  onRemove: (index: number) => void;
+  tasks: readonly Task[];
+  onEdit: (taskId: Task["id"]) => void;
+  onRemove: (taskId: Task["id"]) => void;
 }
 
 export function TaskTable({ tasks, onEdit, onRemove }: TaskTableProps) {
@@ -25,30 +25,30 @@ export function TaskTable({ tasks, onEdit, onRemove }: TaskTableProps) {
           <TableHead>Name</TableHead>
           <TableHead>Min</TableHead>
           <TableHead>Max</TableHead>
-          <TableHead>Distribution</TableHead>
+          <TableHead>Mean</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {tasks.map((task, index) => (
-          <TableRow key={task.name}>
-            <TableCell>{task.name}</TableCell>
-            <TableCell>{task.min}</TableCell>
-            <TableCell>{task.max}</TableCell>
-            <TableCell>{task.distribution}</TableCell>
+        {tasks.map((task) => (
+          <TableRow key={task.id}>
+            <TableCell>{task.title}</TableCell>
+            <TableCell>{task.minEstimate}</TableCell>
+            <TableCell>{task.maxEstimate}</TableCell>
+            <TableCell>{task.meanEstimate ?? "--"}</TableCell>
             <TableCell>
               <div className="flex gap-2">
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => onEdit(task, index)}
+                  onClick={() => onEdit(task.id)}
                 >
                   Edit
                 </Button>
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={() => onRemove(index)}
+                  onClick={() => onRemove(task.id)}
                 >
                   Remove
                 </Button>

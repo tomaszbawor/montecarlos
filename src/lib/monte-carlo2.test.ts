@@ -31,18 +31,21 @@ describe("test simulation", () => {
       tasks: [
         {
           id: "TASK-LOGIN",
-          minEstimateDays: 3,
-          maxEstimateDays: 6,
+          title: "Login",
+          minEstimate: 3,
+          maxEstimate: 6,
         },
         {
           id: "TASK-PAYMENTS",
-          minEstimateDays: 5,
-          maxEstimateDays: 12,
+          title: "Payments",
+          minEstimate: 5,
+          maxEstimate: 12,
         },
         {
           id: "TASK-REPORTING",
-          minEstimateDays: 4,
-          maxEstimateDays: 9,
+          title: "Reporting",
+          minEstimate: 4,
+          maxEstimate: 9,
         },
       ],
 
