@@ -10,7 +10,7 @@ export interface UniformDistributionParams extends DistributionParameters {}
 export class UniformDistribution
   implements EffectfullDistribution<UniformDistributionParams>
 {
-  paramsFromTaks = (task: Task): UniformDistributionParams => {
+  paramsFromTask = (task: Task): UniformDistributionParams => {
     const { minEstimate: min, maxEstimate: max } = task;
 
     return {

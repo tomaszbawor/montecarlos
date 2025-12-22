@@ -5,10 +5,9 @@ import {
   UniformDistribution,
   type UniformDistributionParams,
 } from "@/lib/distribution/UniformDistribution";
+import { RandomService } from "@/state/atom-runtime";
 
 export type DistributionId = "uniform" | "beta-pert";
-
-const RandomService = Random.make("seed");
 
 export type DistributionParameterControl =
   | {
@@ -92,8 +91,14 @@ export const DISTRIBUTIONS: readonly AnyDistributionDefinition[] = [
         step: 0.1,
       },
     ],
-    sample: (params) =>
-      new BetaPertDistribution().calculateDistribution(params),
+    sample: (params) => {
+      const distribution = new BetaPertDistribution();
+      const getValueEffect = distribution
+        .calculate(params)
+        .pipe(Effect.provideService(Random.Random, RandomService));
+
+      return Effect.runSync(getValueEffect);
+    },
     domain: (params) => ({
       min: Math.min(params.min, params.max),
       max: Math.max(params.min, params.max),

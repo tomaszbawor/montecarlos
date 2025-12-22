@@ -1,19 +1,41 @@
 // lib/monte-carlo.ts
 
+import { Effect, Random } from "effect";
 import type { Task } from "@/domain/Task";
 import { BetaPertDistribution } from "@/lib/distribution/BetaPertDistribution";
-import type { Distribution } from "@/lib/distribution/Distribution";
+import type {
+  DistributionParameters,
+  EffectfullDistribution,
+} from "@/lib/distribution/Distribution";
+import { RandomService } from "@/state/atom-runtime";
 
 /**
  * Generate a random value from the specified distribution.
  */
-function randomValue(task: Task, distribution?: Distribution): number {
+function randomValue(task: Task): number;
+function randomValue<P extends DistributionParameters>(
+  task: Task,
+  distribution: EffectfullDistribution<P>,
+): number;
+function randomValue<P extends DistributionParameters>(
+  task: Task,
+  distribution?: EffectfullDistribution<P>,
+): number {
   if (!distribution) {
-    distribution = new BetaPertDistribution();
+    const defaultDistribution = new BetaPertDistribution();
+    const params = defaultDistribution.paramsFromTask(task);
+    return defaultDistribution
+      .calculate(params)
+      .pipe(
+        Effect.provideService(Random.Random, RandomService),
+        Effect.runSync,
+      );
   }
 
   const params = distribution.paramsFromTask(task);
-  return distribution.calculateDistribution(params);
+  return distribution
+    .calculate(params)
+    .pipe(Effect.provideService(Random.Random, RandomService), Effect.runSync);
 }
 
 /**
