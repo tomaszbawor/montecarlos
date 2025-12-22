@@ -35,7 +35,7 @@ export class BetaPertDistribution
       const alpha = 1 + (lambda * (mode - min)) / (max - min);
       const beta = 1 + (lambda * (max - mode)) / (max - min);
 
-      const u = yield* randomBeta2(alpha, beta);
+      const u = yield* randomBeta(alpha, beta);
       return min + u * (max - min);
     });
 
@@ -56,29 +56,29 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
-const randomBeta2 = (alpha: number, beta: number) =>
+const randomBeta = (alpha: number, beta: number) =>
   Effect.gen(function* () {
-    const x = yield* randomGamma2(alpha);
-    const y = yield* randomGamma2(beta);
+    const x = yield* randomGamma(alpha);
+    const y = yield* randomGamma(beta);
 
     return x / (x + y);
   });
 
-const randomGamma2 = (shape: number): Effect.Effect<number, never, Random> =>
+const randomGamma = (shape: number): Effect.Effect<number, never, Random> =>
   Effect.gen(function* () {
     const random = yield* Random;
     if (!(shape > 0)) return NaN;
 
     if (shape < 1) {
       const u = yield* random.next;
-      return (yield* randomGamma2(shape + 1)) * u ** (1 / shape);
+      return (yield* randomGamma(shape + 1)) * u ** (1 / shape);
     }
 
     const d = shape - 1 / 3;
     const c = 1 / Math.sqrt(9 * d);
 
     while (true) {
-      const x = yield* randomStandardNormal2();
+      const x = yield* randomStandardNormal();
       const v = (1 + c * x) ** 3;
       if (v <= 0) continue;
 
@@ -88,7 +88,7 @@ const randomGamma2 = (shape: number): Effect.Effect<number, never, Random> =>
     }
   });
 
-const randomStandardNormal2 = () =>
+const randomStandardNormal = () =>
   Effect.gen(function* () {
     const random = yield* Random;
     let u = 0;
