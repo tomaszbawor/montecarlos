@@ -1,4 +1,6 @@
+import { Effect, Random } from "effect";
 import { UniformDistribution } from "@/lib/distribution/UniformDistribution";
+import { RandomService } from "@/state/atom-runtime";
 
 describe("UniformDistribution", () => {
   let uniform: UniformDistribution;
@@ -7,12 +9,19 @@ describe("UniformDistribution", () => {
     uniform = new UniformDistribution();
   });
 
+  const sample = (min: number, max: number) =>
+    Effect.runSync(
+      uniform
+        .calculate({ min, max })
+        .pipe(Effect.provideService(Random.Random, RandomService)),
+    );
+
   it("should return a number within the specified range", () => {
     const min = 5;
     const max = 10;
 
     for (let i = 0; i < 100; i++) {
-      const value = uniform.calculateDistribution({ min, max });
+      const value = sample(min, max);
       expect(value).toBeGreaterThanOrEqual(min);
       expect(value).toBeLessThanOrEqual(max);
     }
@@ -21,7 +30,7 @@ describe("UniformDistribution", () => {
   it("should return the min value when min and max are equal", () => {
     const min = 7;
     const max = 7;
-    const value = uniform.calculateDistribution({ min, max });
+    const value = sample(min, max);
     expect(value).toBe(min);
   });
 
@@ -31,7 +40,7 @@ describe("UniformDistribution", () => {
     const values = new Set();
 
     for (let i = 0; i < 50; i++) {
-      values.add(uniform.calculateDistribution({ min, max }));
+      values.add(sample(min, max));
     }
     expect(values.size).toBeGreaterThan(1);
   });
@@ -41,7 +50,7 @@ describe("UniformDistribution", () => {
     const max = -1;
 
     for (let i = 0; i < 100; i++) {
-      const value = uniform.calculateDistribution({ min, max });
+      const value = sample(min, max);
       expect(value).toBeGreaterThanOrEqual(min);
       expect(value).toBeLessThanOrEqual(max);
     }
