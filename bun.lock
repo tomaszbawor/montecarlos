@@ -6,7 +6,7 @@
       "name": "montecarlos",
       "dependencies": {
         "@effect-atom/atom": "0.4.11",
-        "@effect-atom/atom-react": "0.4.4",
+        "@effect-atom/atom-react": "0.7.0",
         "@effect/experimental": "0.58.0",
         "@effect/platform": "0.94.0",
         "@effect/platform-browser": "^0.74.0",
@@ -142,7 +142,7 @@
 
     "@effect-atom/atom": ["@effect-atom/atom@0.4.11", "", { "peerDependencies": { "@effect/experimental": "^0.57.0", "@effect/platform": "^0.93.0", "@effect/rpc": "^0.72.1", "effect": "^3.19.0" } }, "sha512-bahWNw2xQ349HXkqshpls/t4wUu5fbMfjT6/7FhDj1uPjP9BArUAwL1Js5b7EG0ZPonS+G1O9LftpxVWAxr86g=="],
 
-    "@effect-atom/atom-react": ["@effect-atom/atom-react@0.4.4", "", { "dependencies": { "@effect-atom/atom": "^0.4.10" }, "peerDependencies": { "effect": "^3.19", "react": ">=18 <20", "scheduler": "*" } }, "sha512-EWT9WpB67GNCecxQXJdAZNVMhuk3VxpdDfojxg1wOgWmR5TPaGiXA74Jqa2Y9AEjSB0hMMAk7RNve2CoIikg2w=="],
+    "@effect-atom/atom-react": ["@effect-atom/atom-react@0.7.0", "", { "dependencies": { "@effect-atom/atom": "^0.7.0" }, "peerDependencies": { "effect": "^3.22.1", "react": ">=18 <20", "scheduler": "*" } }, "sha512-o7TEsAIvz5HZ2bULBNn2UYDv+y/BSneTnSELG51pPIWP4PYj6V2//zefOzCMlp/Rw4Vws2dm+eaqse23+FCfwA=="],
 
     "@effect/experimental": ["@effect/experimental@0.58.0", "", { "dependencies": { "uuid": "^11.0.3" }, "peerDependencies": { "@effect/platform": "^0.94.0", "effect": "^3.19.13", "ioredis": "^5", "lmdb": "^3" }, "optionalPeers": ["ioredis", "lmdb"] }, "sha512-IEP9sapjF6rFy5TkoqDPc86st/fnqUfjT7Xa3pWJrFGr1hzaMXHo+mWsYOZS9LAOVKnpHuVziDK97EP5qsCHVA=="],
 
@@ -1139,6 +1139,8 @@
     "@babel/core/semver": ["semver@6.3.1", "", { "bin": "bin/semver.js" }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
 
     "@babel/helper-compilation-targets/semver": ["semver@6.3.1", "", { "bin": "bin/semver.js" }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
+
+    "@effect-atom/atom-react/@effect-atom/atom": ["@effect-atom/atom@0.7.0", "", { "peerDependencies": { "@effect/experimental": "^0.61.1", "@effect/platform": "^0.97.1", "@effect/rpc": "^0.76.2", "effect": "^3.22.1" } }, "sha512-+GkZ1k1e4lYjNwJUHN6n5SsULnFaHpYr0alDUmUvRy3qzuul925nM8tFqPy43srFHo4EVuCzRf1VkBzh6HDyjg=="],
 
     "@effect/experimental/uuid": ["uuid@11.1.0", "", { "bin": "dist/esm/bin/uuid" }, "sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A=="],
 
